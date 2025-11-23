@@ -2496,6 +2496,75 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Leyenda para capas de conservación (Presas)
+    function addConservationLayersLegend() {
+        if (pibLegendControl) {
+            map.removeControl(pibLegendControl);
+        }
+
+        pibLegendControl = L.control({ position: 'topright' });
+
+        pibLegendControl.onAdd = function (map) {
+            const div = L.DomUtil.create('div', 'info legend conservation-legend');
+            div.innerHTML = '<strong style="display: block; margin-bottom: 10px; font-size: 13px; color: #601623;">CAPAS DE CONSERVACIÓN</strong>';
+            
+            // Ramsar
+            div.innerHTML += `
+                <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <i style="background: #8D6E63; width: 22px; height: 16px; border: 2px solid #5D4037; opacity: 0.7; display: inline-block; margin-right: 8px; border-radius: 2px;"></i>
+                    <span style="font-size: 12px; font-weight: 600; color: #5D4037;">Sitios Ramsar</span>
+                </div>
+            `;
+            
+            // ANP
+            div.innerHTML += `
+                <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <i style="background: #66BB6A; width: 22px; height: 16px; border: 2px solid #388E3C; opacity: 0.7; display: inline-block; margin-right: 8px; border-radius: 2px;"></i>
+                    <span style="font-size: 12px; font-weight: 600; color: #388E3C;">Áreas Naturales Protegidas</span>
+                </div>
+            `;
+            
+            // ADVC
+            div.innerHTML += `
+                <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <i style="background: #AB47BC; width: 22px; height: 16px; border: 2px solid #7B1FA2; opacity: 0.7; display: inline-block; margin-right: 8px; border-radius: 2px;"></i>
+                    <span style="font-size: 12px; font-weight: 600; color: #7B1FA2;">Áreas Voluntarias (ADVC)</span>
+                </div>
+            `;
+            
+            // Río Usumacinta
+            div.innerHTML += `
+                <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <div style="width: 22px; height: 0; border-top: 3px solid #0288D1; display: inline-block; margin-right: 8px;"></div>
+                    <span style="font-size: 12px; font-weight: 600; color: #0288D1;">Río Usumacinta</span>
+                </div>
+            `;
+            
+            // Separador
+            div.innerHTML += `<div style="border-top: 1px solid #ddd; margin: 10px 0;"></div>`;
+            
+            // Presas
+            div.innerHTML += `
+                <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <img src="https://cdn.sassoapps.com/iconos/represa.png" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;" alt="Presa">
+                    <span style="font-size: 12px; font-weight: 600; color: #601623;">Presas Hidroeléctricas</span>
+                </div>
+            `;
+            
+            // Localidades Indígenas
+            div.innerHTML += `
+                <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <i style="background: #FFA726; width: 10px; height: 10px; border: 2px solid #F57C00; border-radius: 50%; display: inline-block; margin-right: 10px;"></i>
+                    <span style="font-size: 12px; font-weight: 600; color: #F57C00;">Localidades Indígenas</span>
+                </div>
+            `;
+            
+            return div;
+        };
+
+        pibLegendControl.addTo(map);
+    }
+
     async function loadGeoJSON(url, options) {
         const showPreloader = !(options && options.silent);
         const type = options && options.type || 'regions';
@@ -2517,15 +2586,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (type === 'ramsar') {
                 // Estilo para sitios Ramsar (humedales)
+                // Crear pane para Ramsar con z-index alto
+                if (!map.getPane('ramsarPane')) {
+                    map.createPane('ramsarPane');
+                    map.getPane('ramsarPane').style.zIndex = 450; // Encima de ANP y ADVC
+                }
+                
                 styleFunction = function (feature) {
                     return {
-                        fillColor: '#4CAF50',
+                        fillColor: '#8D6E63',
                         fill: true,
                         weight: 2,
                         opacity: 0.8,
-                        color: '#2E7D32',
+                        color: '#5D4037',
                         fillOpacity: 0.4,
-                        pane: 'overlayPane'
+                        pane: 'ramsarPane'
                     };
                 };
                 onEachFeatureFunction = function (feature, layer) {
@@ -2542,8 +2617,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     const popupHtml = `
                         <div style="font-family: 'Montserrat', sans-serif; max-width: 260px; line-height: 1.4;">
-                            <div style="font-size: 14px; font-weight: 700; color: #1E5B4F;">
-                                <i class="bi bi-tree-fill" style="color:#4CAF50;"></i> ${nombre}
+                            <div style="font-size: 14px; font-weight: 700; color: #5D4037;">
+                                <i class="bi bi-water" style="color:#8D6E63;"></i> ${nombre}
                             </div>
                             <div style="font-size: 11px; color: #666; margin-top: 4px;">
                                 ${estado} • ${municipios}
@@ -2563,14 +2638,136 @@ document.addEventListener('DOMContentLoaded', function () {
                         maxWidth: 280
                     });
                 };
+            } else if (type === 'anp') {
+                // Estilo para Áreas Naturales Protegidas
+                // Crear pane para ANP con z-index bajo
+                if (!map.getPane('anpPane')) {
+                    map.createPane('anpPane');
+                    map.getPane('anpPane').style.zIndex = 410; // Debajo de Ramsar
+                }
+                
+                styleFunction = function (feature) {
+                    return {
+                        fillColor: '#66BB6A',
+                        fill: true,
+                        weight: 2,
+                        opacity: 0.8,
+                        color: '#388E3C',
+                        fillOpacity: 0.3,
+                        pane: 'anpPane'
+                    };
+                };
+                onEachFeatureFunction = function (feature, layer) {
+                    const props = feature.properties || {};
+                    const nombre = props.NOMBRE || props.name || props.nombre || 'Área Natural Protegida';
+                    const tipo = props.TIPO || props.tipo || 'Tipo N/D';
+                    const categoria = props.CAT_DEC || props.categoria || 'Categoría N/D';
+                    const entidad = props.ENTIDAD || props.entidad || props.estado || 'Entidad N/D';
+                    const municipio = props.MUN_DEC || props.municipio || 'Municipio N/D';
+                    let areaHa = null;
+                    try {
+                        areaHa = (turf.area(feature) / 10000).toFixed(1);
+                    } catch (e) {
+                        areaHa = null;
+                    }
+
+                    const popupHtml = `
+                        <div style="font-family: var(--font-family-body); max-width: 280px; line-height: 1.4;">
+                            <div style="font-size: 14px; font-weight: 700; color: var(--color-gobmx-verde);">
+                                <i class="bi bi-tree-fill" style="color:#66BB6A;"></i> ${nombre}
+                            </div>
+                            <div style="font-size: 11px; color: #666; margin-top: 4px;">
+                                <i class="bi bi-shield-fill-check"></i> ${categoria} • ${tipo}
+                            </div>
+                            <div style="font-size: 11px; color: #666; margin-top: 2px;">
+                                <i class="bi bi-geo-alt-fill"></i> ${entidad} • ${municipio}
+                            </div>
+                            ${areaHa ? `
+                                <div style="margin-top: 8px; font-size: 12px;">
+                                    <strong>Área:</strong> ${Number(areaHa).toLocaleString('es-MX')} ha
+                                </div>
+                            ` : ''}
+                            <div style="margin-top: 8px; font-size: 11px; color: #555; padding: 6px; background: #E8F5E9; border-radius: 4px;">
+                                <i class="bi bi-info-circle"></i> Área Natural Protegida bajo protección ${tipo.toLowerCase()}.
+                            </div>
+                        </div>
+                    `;
+                    layer.bindPopup(popupHtml, {
+                        className: 'anp-popup-simple',
+                        maxWidth: 300
+                    });
+                };
+            } else if (type === 'advc') {
+                // Estilo para Áreas Destinadas Voluntariamente a la Conservación
+                // Crear pane para ADVC con z-index medio
+                if (!map.getPane('advcPane')) {
+                    map.createPane('advcPane');
+                    map.getPane('advcPane').style.zIndex = 420; // Entre ANP y Ramsar
+                }
+                
+                styleFunction = function (feature) {
+                    return {
+                        fillColor: '#AB47BC',
+                        fill: true,
+                        weight: 2,
+                        opacity: 0.8,
+                        color: '#7B1FA2',
+                        fillOpacity: 0.3,
+                        pane: 'advcPane'
+                    };
+                };
+                onEachFeatureFunction = function (feature, layer) {
+                    const props = feature.properties || {};
+                    const nombre = props.ADVC || props.NOMBRE || props.name || props.nombre || 'ADVC';
+                    const entidad = props.ESTADO || props.ENTIDAD || props.entidad || props.estado || 'Entidad N/D';
+                    const municipio = props.MUNICIPIO || props.municipio || props.MUN_DEC || 'Municipio N/D';
+                    let areaHa = null;
+                    try {
+                        areaHa = (turf.area(feature) / 10000).toFixed(1);
+                    } catch (e) {
+                        areaHa = null;
+                    }
+
+                    const popupHtml = `
+                        <div style="font-family: var(--font-family-body); max-width: 280px; line-height: 1.4;">
+                            <div style="font-size: 14px; font-weight: 700; color: #7B1FA2;">
+                                <i class="bi bi-heart-fill" style="color:#AB47BC;"></i> ${nombre}
+                            </div>
+                            <div style="font-size: 11px; color: #666; margin-top: 4px;">
+                                <i class="bi bi-award-fill"></i> Área Destinada Voluntariamente a la Conservación
+                            </div>
+                            <div style="font-size: 11px; color: #666; margin-top: 2px;">
+                                <i class="bi bi-geo-alt-fill"></i> ${entidad} • ${municipio}
+                            </div>
+                            ${areaHa ? `
+                                <div style="margin-top: 8px; font-size: 12px;">
+                                    <strong>Área:</strong> ${Number(areaHa).toLocaleString('es-MX')} ha
+                                </div>
+                            ` : ''}
+                            <div style="margin-top: 8px; font-size: 11px; color: #555; padding: 6px; background: #F3E5F5; border-radius: 4px;">
+                                <i class="bi bi-info-circle"></i> Área bajo conservación voluntaria por iniciativa privada o comunitaria.
+                            </div>
+                        </div>
+                    `;
+                    layer.bindPopup(popupHtml, {
+                        className: 'advc-popup-simple',
+                        maxWidth: 300
+                    });
+                };
             } else if (type === 'usumacinta') {
                 // Estilo para río Usumacinta
+                // Crear pane para río con z-index más alto (encima de todo)
+                if (!map.getPane('rioPane')) {
+                    map.createPane('rioPane');
+                    map.getPane('rioPane').style.zIndex = 460; // Encima de todo
+                }
+                
                 styleFunction = function (feature) {
                     return {
                         color: '#0288D1',
                         weight: 3,
                         opacity: 0.7,
-                        pane: 'overlayPane'
+                        pane: 'rioPane'
                     };
                 };
                 onEachFeatureFunction = function (feature, layer) {
@@ -3418,6 +3615,8 @@ document.addEventListener('DOMContentLoaded', function () {
                                     <th style="padding: var(--spacing-sm); text-align: center; font-weight: 600;">Hogares Ind.</th>
                                     <th style="padding: var(--spacing-sm); text-align: center; font-weight: 600;">Dist. Presa</th>
                                     <th style="padding: var(--spacing-sm); text-align: center; font-weight: 600;">Sitio Ramsar</th>
+                                    <th style="padding: var(--spacing-sm); text-align: center; font-weight: 600;">ANP</th>
+                                    <th style="padding: var(--spacing-sm); text-align: center; font-weight: 600;">ADVC</th>
                                     <th style="padding: var(--spacing-sm); text-align: center; font-weight: 600;">Río Usumacinta</th>
                                 </tr>
                             </thead>
@@ -3435,7 +3634,9 @@ document.addEventListener('DOMContentLoaded', function () {
                                     <td style="padding: var(--spacing-sm); text-align: center;">${loc.poblacion.toLocaleString('es-MX')}</td>
                                     <td style="padding: var(--spacing-sm); text-align: center;">${loc.hogaresIndigenas.toLocaleString('es-MX')}</td>
                                     <td style="padding: var(--spacing-sm); text-align: center; font-weight: 600; color: var(--color-gobmx-guinda);">${loc.distanciaPresa} km</td>
-                                    <td style="padding: var(--spacing-sm); text-align: center;">${loc.sitioRamsar || '<span style="color: var(--color-text-secondary);">—</span>'}</td>
+                                    <td style="padding: var(--spacing-sm); text-align: center; font-size: 11px;">${loc.sitioRamsar || '<span style="color: var(--color-text-secondary);">—</span>'}</td>
+                                    <td style="padding: var(--spacing-sm); text-align: center; font-size: 11px;">${loc.areaNatural || '<span style="color: var(--color-text-secondary);">—</span>'}</td>
+                                    <td style="padding: var(--spacing-sm); text-align: center; font-size: 11px;">${loc.areaVoluntaria || '<span style="color: var(--color-text-secondary);">—</span>'}</td>
                                     <td style="padding: var(--spacing-sm); text-align: center;">${loc.distanciaRio || '<span style="color: var(--color-text-secondary);">—</span>'}</td>
                                 </tr>
                 `;
@@ -3457,34 +3658,118 @@ document.addEventListener('DOMContentLoaded', function () {
         // Sitios Ramsar
         if (stats.sitiosRamsar.length > 0) {
             content += `
-                <div style="background: var(--color-gobmx-verde-light); border-left: 4px solid var(--color-gobmx-verde); padding: var(--spacing-lg); border-radius: var(--border-radius-md); margin-bottom: var(--spacing-lg); box-shadow: var(--shadow-card);">
-                    <h4 style="margin: 0 0 var(--spacing-md) 0; color: var(--color-gobmx-verde); font-size: var(--font-size-h4); font-family: var(--font-family-headings);">
-                        <i class="bi bi-tree-fill"></i> Sitios Ramsar (${stats.sitiosRamsar.length})
+                <div style="background: #EFEBE9; border-left: 4px solid #8D6E63; padding: var(--spacing-lg); border-radius: var(--border-radius-md); margin-bottom: var(--spacing-lg); box-shadow: var(--shadow-card);">
+                    <h4 style="margin: 0 0 var(--spacing-md) 0; color: #5D4037; font-size: var(--font-size-h4); font-family: var(--font-family-headings);">
+                        <i class="bi bi-water"></i> Sitios Ramsar (${stats.sitiosRamsar.length})
                     </h4>
                     <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
             `;
             
             stats.sitiosRamsar.forEach((ramsar, index) => {
                 content += `
-                    <div style="background: var(--color-background); padding: var(--spacing-md); border-radius: var(--border-radius-md); border-left: 3px solid ${ramsar.intersecta ? 'var(--color-gobmx-verde)' : 'var(--color-gobmx-dorado)'}; box-shadow: var(--shadow-card);">
+                    <div style="background: var(--color-background); padding: var(--spacing-md); border-radius: var(--border-radius-md); border-left: 3px solid ${ramsar.intersecta ? '#8D6E63' : '#A1887F'}; box-shadow: var(--shadow-card);">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--spacing-sm);">
                             <div style="flex: 1;">
-                                <div style="font-size: 16px; font-weight: 700; color: var(--color-gobmx-verde); margin-bottom: var(--spacing-xs); font-family: var(--font-family-headings);">
+                                <div style="font-size: 16px; font-weight: 700; color: #5D4037; margin-bottom: var(--spacing-xs); font-family: var(--font-family-headings);">
                                     ${ramsar.nombre}
                                 </div>
                                 <div style="font-size: var(--font-size-small); color: var(--color-text-secondary);">
                                     <i class="bi bi-geo-alt-fill"></i> ${ramsar.estado} • ${ramsar.municipios}
                                 </div>
                             </div>
-                            <div style="padding: 8px 15px; background: ${ramsar.intersecta ? 'var(--color-gobmx-verde-light)' : 'var(--color-gobmx-dorado-light)'}; border-radius: 20px; font-size: var(--font-size-small); font-weight: 600; color: ${ramsar.intersecta ? 'var(--color-gobmx-verde)' : 'var(--color-gobmx-dorado)'}; white-space: nowrap;">
+                            <div style="padding: 8px 15px; background: ${ramsar.intersecta ? '#EFEBE9' : '#D7CCC8'}; border-radius: 20px; font-size: var(--font-size-small); font-weight: 600; color: ${ramsar.intersecta ? '#5D4037' : '#4E342E'}; white-space: nowrap;">
                                 ${ramsar.intersecta ? 
                                     '<i class="bi bi-check-circle-fill"></i> DENTRO' : 
                                     `<i class="bi bi-rulers"></i> ${(ramsar.distancia/1000).toFixed(2)} km`
                                 }
                             </div>
                         </div>
-                        <div style="font-size: var(--font-size-small); padding: var(--spacing-sm); background: var(--color-surface); border-radius: var(--border-radius-sm); color: var(--color-text-secondary);">
+                        <div style="font-size: var(--font-size-small); padding: var(--spacing-sm); background: #FBE9E7; border-radius: var(--border-radius-sm); color: #5D4037;">
                             <i class="bi bi-info-circle"></i> Humedal de importancia internacional bajo la Convención de Ramsar
+                        </div>
+                    </div>
+                `;
+            });
+            
+            content += `
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Áreas Naturales Protegidas
+        if (stats.areasNaturales.length > 0) {
+            content += `
+                <div style="background: var(--color-gobmx-verde-light); border-left: 4px solid var(--color-gobmx-verde); padding: var(--spacing-lg); border-radius: var(--border-radius-md); margin-bottom: var(--spacing-lg); box-shadow: var(--shadow-card);">
+                    <h4 style="margin: 0 0 var(--spacing-md) 0; color: var(--color-gobmx-verde); font-size: var(--font-size-h4); font-family: var(--font-family-headings);">
+                        <i class="bi bi-tree-fill"></i> Áreas Naturales Protegidas (${stats.areasNaturales.length})
+                    </h4>
+                    <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+            `;
+            
+            stats.areasNaturales.forEach((anp, index) => {
+                content += `
+                    <div style="background: var(--color-background); padding: var(--spacing-md); border-radius: var(--border-radius-md); border-left: 3px solid ${anp.intersecta ? 'var(--color-gobmx-verde)' : 'var(--color-gobmx-dorado)'}; box-shadow: var(--shadow-card);">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--spacing-sm);">
+                            <div style="flex: 1;">
+                                <div style="font-size: 16px; font-weight: 700; color: var(--color-gobmx-verde); margin-bottom: var(--spacing-xs); font-family: var(--font-family-headings);">
+                                    ${anp.nombre}
+                                </div>
+                                <div style="font-size: var(--font-size-small); color: var(--color-text-secondary); margin-bottom: 4px;">
+                                    <i class="bi bi-shield-fill-check"></i> ${anp.categoria} • ${anp.tipo}
+                                </div>
+                                <div style="font-size: var(--font-size-small); color: var(--color-text-secondary);">
+                                    <i class="bi bi-geo-alt-fill"></i> ${anp.entidad} • ${anp.municipio}
+                                </div>
+                            </div>
+                            <div style="padding: 8px 15px; background: ${anp.intersecta ? 'var(--color-gobmx-verde-light)' : 'var(--color-gobmx-dorado-light)'}; border-radius: 20px; font-size: var(--font-size-small); font-weight: 600; color: ${anp.intersecta ? 'var(--color-gobmx-verde)' : 'var(--color-gobmx-dorado)'}; white-space: nowrap;">
+                                ${anp.intersecta ? 
+                                    '<i class="bi bi-check-circle-fill"></i> DENTRO' : 
+                                    `<i class="bi bi-rulers"></i> ${(anp.distancia/1000).toFixed(2)} km`
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            content += `
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Áreas Destinadas Voluntariamente a la Conservación (ADVC)
+        if (stats.areasVoluntarias.length > 0) {
+            content += `
+                <div style="background: #F3E5F5; border-left: 4px solid #AB47BC; padding: var(--spacing-lg); border-radius: var(--border-radius-md); margin-bottom: var(--spacing-lg); box-shadow: var(--shadow-card);">
+                    <h4 style="margin: 0 0 var(--spacing-md) 0; color: #7B1FA2; font-size: var(--font-size-h4); font-family: var(--font-family-headings);">
+                        <i class="bi bi-heart-fill"></i> Áreas Destinadas Voluntariamente a la Conservación (${stats.areasVoluntarias.length})
+                    </h4>
+                    <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+            `;
+            
+            stats.areasVoluntarias.forEach((advc, index) => {
+                content += `
+                    <div style="background: var(--color-background); padding: var(--spacing-md); border-radius: var(--border-radius-md); border-left: 3px solid ${advc.intersecta ? '#AB47BC' : '#BA68C8'}; box-shadow: var(--shadow-card);">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--spacing-sm);">
+                            <div style="flex: 1;">
+                                <div style="font-size: 16px; font-weight: 700; color: #7B1FA2; margin-bottom: var(--spacing-xs); font-family: var(--font-family-headings);">
+                                    ${advc.nombre}
+                                </div>
+                                <div style="font-size: var(--font-size-small); color: var(--color-text-secondary);">
+                                    <i class="bi bi-geo-alt-fill"></i> ${advc.entidad} • ${advc.municipio}
+                                </div>
+                            </div>
+                            <div style="padding: 8px 15px; background: ${advc.intersecta ? '#F3E5F5' : '#FCE4EC'}; border-radius: 20px; font-size: var(--font-size-small); font-weight: 600; color: ${advc.intersecta ? '#7B1FA2' : '#C2185B'}; white-space: nowrap;">
+                                ${advc.intersecta ? 
+                                    '<i class="bi bi-check-circle-fill"></i> DENTRO' : 
+                                    `<i class="bi bi-rulers"></i> ${(advc.distancia/1000).toFixed(2)} km`
+                                }
+                            </div>
+                        </div>
+                        <div style="font-size: var(--font-size-small); padding: var(--spacing-sm); background: #F8BBD0; border-radius: var(--border-radius-sm); color: #880E4F;">
+                            <i class="bi bi-award-fill"></i> Área bajo conservación voluntaria
                         </div>
                     </div>
                 `;
@@ -3548,6 +3833,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Función para analizar recursos cercanos a una presa
     function analyzePresaResources(presaLatLng, presaNombre) {
+        // Cerrar todos los popups abiertos
+        map.closePopup();
+        
         // Limpiar análisis anterior
         if (presasAnalysisLayer) {
             map.removeLayer(presasAnalysisLayer);
@@ -3560,6 +3848,13 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         console.log(`🔍 Analizando recursos cercanos a: ${presaNombre} (Radio: ${currentSearchRadius / 1000}km)`);
+        
+        // Centrar mapa en la presa con zoom apropiado para ver el radio
+        const zoomLevel = currentSearchRadius <= 20000 ? 10 : (currentSearchRadius <= 50000 ? 9 : 8);
+        map.setView(presaLatLng, zoomLevel, {
+            animate: true,
+            duration: 0.8
+        });
 
         // Objeto para almacenar estadísticas del análisis
         const analysisStats = {
@@ -3570,6 +3865,8 @@ document.addEventListener('DOMContentLoaded', function () {
             hogaresIndigenas: 0,
             poblacionAfro: 0,
             sitiosRamsar: [],
+            areasNaturales: [],
+            areasVoluntarias: [],
             distanciaRioUsumacinta: null,
             localidadesDetalle: [] // Array para almacenar detalle de cada localidad
         };
@@ -3637,11 +3934,15 @@ document.addEventListener('DOMContentLoaded', function () {
                         const intersects = turf.booleanIntersects(presaBuffer, feature);
                         if (intersects) {
                             // Calcular distancia al borde más cercano del polígono
-                            const distance = turf.pointToLineDistance(
-                                presaPoint,
-                                turf.polygonToLine(feature),
-                                { units: 'meters' }
-                            );
+                            let distance = 0;
+                            try {
+                                const polyLine = turf.polygonToLine(feature);
+                                distance = turf.pointToLineDistance(presaPoint, polyLine, { units: 'meters' });
+                            } catch (lineError) {
+                                // Si falla al convertir a línea, usar distancia 0 (está dentro o muy cerca)
+                                distance = 0;
+                            }
+                            
                             nearbyFeatures.push({
                                 feature: feature,
                                 distance: distance,
@@ -3656,7 +3957,22 @@ document.addEventListener('DOMContentLoaded', function () {
                     const presaPoint = turf.point([presaLatLng.lng, presaLatLng.lat]);
 
                     try {
-                        const distance = turf.pointToLineDistance(presaPoint, feature, { units: 'meters' });
+                        let distance;
+                        if (geomType === 'MultiLineString') {
+                            // Para MultiLineString, calcular distancia a cada línea y tomar la mínima
+                            let minDist = Infinity;
+                            feature.geometry.coordinates.forEach(lineCoords => {
+                                const lineFeature = turf.lineString(lineCoords);
+                                const dist = turf.pointToLineDistance(presaPoint, lineFeature, {units: 'meters'});
+                                if (dist < minDist) {
+                                    minDist = dist;
+                                }
+                            });
+                            distance = minDist;
+                        } else {
+                            distance = turf.pointToLineDistance(presaPoint, feature, { units: 'meters' });
+                        }
+                        
                         if (distance <= radius) {
                             nearbyFeatures.push({
                                 feature: feature,
@@ -3688,8 +4004,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Dibujar polígono del sitio Ramsar
                     const ramsarLayer = L.geoJSON(item.feature, {
                         style: {
-                            fillColor: ramsar.intersecta ? '#4CAF50' : '#FFA726',
-                            color: ramsar.intersecta ? '#2E7D32' : '#F57C00',
+                            fillColor: ramsar.intersecta ? '#8D6E63' : '#A1887F',
+                            color: ramsar.intersecta ? '#5D4037' : '#795548',
                             weight: 2,
                             opacity: 0.8,
                             fillOpacity: 0.2
@@ -3719,14 +4035,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Crear popup simplificado para el sitio Ramsar
                     const ramsarPopupContent = `
                         <div style="font-family: 'Montserrat', sans-serif; min-width: 220px;">
-                            <div style="background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%); padding: 10px; margin: -10px -10px 10px -10px; border-radius: 4px 4px 0 0;">
+                            <div style="background: linear-gradient(135deg, #8D6E63 0%, #A1887F 100%); padding: 10px; margin: -10px -10px 10px -10px; border-radius: 4px 4px 0 0;">
                                 <h4 style="margin: 0; color: white; font-size: 14px;">
-                                    <i class="bi bi-tree-fill"></i> Sitio Ramsar
+                                    <i class="bi bi-water"></i> Sitio Ramsar
                                 </h4>
                             </div>
                             
                             <div style="margin-bottom: 12px;">
-                                <div style="font-size: 15px; font-weight: 700; color: #2E7D32; margin-bottom: 5px;">
+                                <div style="font-size: 15px; font-weight: 700; color: #5D4037; margin-bottom: 5px;">
                                     ${ramsar.nombre}
                                 </div>
                                 <div style="font-size: 12px; color: #666;">
@@ -3738,9 +4054,9 @@ document.addEventListener('DOMContentLoaded', function () {
                             
                             <div style="font-size: 13px; line-height: 1.8;">
                                 ${areaHectareas > 0 ? `
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px; background: #E8F5E9; border-radius: 4px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px; background: #EFEBE9; border-radius: 4px;">
                                         <span><i class="bi bi-bounding-box"></i> <strong>Área:</strong></span>
-                                        <span style="font-weight: 600; color: #2E7D32;">${parseFloat(areaHectareas).toLocaleString('es-MX')} ha</span>
+                                        <span style="font-weight: 600; color: #5D4037;">${parseFloat(areaHectareas).toLocaleString('es-MX')} ha</span>
                                     </div>
                                 ` : ''}
                                 
@@ -3755,8 +4071,8 @@ document.addEventListener('DOMContentLoaded', function () {
                                     </div>
                                 ` : ''}
                                 
-                                <div style="margin-top: 12px; padding: 10px; background: ${ramsar.intersecta ? '#E8F5E9' : '#FFF3E0'}; border-left: 3px solid ${ramsar.intersecta ? '#4CAF50' : '#FFA726'}; border-radius: 4px;">
-                                    <div style="font-weight: 600; color: ${ramsar.intersecta ? '#2E7D32' : '#F57C00'};">
+                                <div style="margin-top: 12px; padding: 10px; background: ${ramsar.intersecta ? '#EFEBE9' : '#FFF3E0'}; border-left: 3px solid ${ramsar.intersecta ? '#8D6E63' : '#FFA726'}; border-radius: 4px;">
+                                    <div style="font-weight: 600; color: ${ramsar.intersecta ? '#5D4037' : '#F57C00'};">
                                         ${ramsar.intersecta ?
                             '<i class="bi bi-check-circle-fill"></i> La presa está DENTRO de este sitio' :
                             `<i class="bi bi-rulers"></i> Distancia a presa: ${(ramsar.distancia / 1000).toFixed(2)} km`
@@ -3779,6 +4095,158 @@ document.addEventListener('DOMContentLoaded', function () {
                     ramsarLayer.addTo(presasAnalysisLayer);
                 });
             }
+            
+            // Procesar Áreas Naturales Protegidas
+            if (layerType === 'anp_analysis') {
+                console.log(`  🌲 Procesando ANP... Features cercanas: ${nearbyFeatures.length}`);
+                if (nearbyFeatures.length > 0) {
+                console.log(`  🌲 ANP encontradas dentro del radio: ${nearbyFeatures.length}`);
+                nearbyFeatures.forEach(item => {
+                    const props = item.feature.properties;
+                    
+                    // Debug: mostrar los campos disponibles
+                    if (nearbyFeatures.indexOf(item) === 0) {
+                        console.log('🔍 Campos disponibles en ANP:', Object.keys(props));
+                        console.log('🔍 Valores:', props);
+                    }
+                    
+                    const anp = {
+                        nombre: props.NOMBRE || props.name || props.nombre || 'Sin nombre',
+                        tipo: props.TIPO || props.tipo || props.tipo_anp || props.TIPO_ANP || 'N/A',
+                        categoria: props.CAT_DEC || props.categoria || props.CATEGORIA || props.cat_manejo || props.CAT_MANEJO || 'N/A',
+                        entidad: props.ENTIDAD || props.entidad || props.ESTADO || props.estado || 'N/A',
+                        municipio: props.MUN_DEC || props.municipio || props.MUNICIPIO || props.municipios || props.MUNICIPIOS || 'N/A',
+                        distancia: item.distance,
+                        intersecta: item.intersects || false
+                    };
+                    analysisStats.areasNaturales.push(anp);
+                    
+                    // Dibujar polígono del ANP
+                    const anpLayer = L.geoJSON(item.feature, {
+                        style: {
+                            fillColor: anp.intersecta ? '#66BB6A' : '#FFA726',
+                            color: anp.intersecta ? '#388E3C' : '#F57C00',
+                            weight: 2,
+                            opacity: 0.8,
+                            fillOpacity: 0.2
+                        }
+                    });
+                    
+                    // Crear popup para ANP
+                    const anpPopupContent = `
+                        <div style="font-family: var(--font-family-body); min-width: 220px;">
+                            <div style="background: linear-gradient(135deg, #66BB6A 0%, #81C784 100%); padding: 10px; margin: -10px -10px 10px -10px; border-radius: 4px 4px 0 0;">
+                                <h4 style="margin: 0; color: white; font-size: 14px;">
+                                    <i class="bi bi-tree-fill"></i> ANP
+                                </h4>
+                            </div>
+                            
+                            <div style="font-size: 14px; font-weight: 600; color: #388E3C; margin-bottom: 8px;">
+                                ${anp.nombre}
+                            </div>
+                            <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
+                                <i class="bi bi-shield-fill-check"></i> ${anp.categoria}
+                            </div>
+                            <div style="font-size: 12px; color: #666; margin-bottom: 12px;">
+                                <i class="bi bi-geo-alt-fill"></i> ${anp.entidad}
+                            </div>
+                            
+                            <div style="padding: 8px; background: ${anp.intersecta ? '#E8F5E9' : '#FFF3E0'}; border-radius: 4px; text-align: center;">
+                                <div style="font-weight: 600; font-size: 13px; color: ${anp.intersecta ? '#388E3C' : '#F57C00'};">
+                                    ${anp.intersecta ? 
+                                        '<i class="bi bi-check-circle-fill"></i> DENTRO' : 
+                                        `<i class="bi bi-rulers"></i> ${(anp.distancia/1000).toFixed(2)} km`
+                                    }
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 10px; font-size: 11px; color: #999; text-align: center;">
+                                <i class="bi bi-info-circle"></i> Ver detalles abajo ↓
+                            </div>
+                        </div>
+                    `;
+                    
+                    anpLayer.bindPopup(anpPopupContent, {
+                        maxWidth: 250,
+                        className: 'anp-popup'
+                    });
+                    
+                    anpLayer.addTo(presasAnalysisLayer);
+                });
+                } else {
+                    console.log(`  🌲 No hay ANP dentro del radio de ${currentSearchRadius/1000} km`);
+                }
+            }
+            
+            // Procesar Áreas Destinadas Voluntariamente a la Conservación (ADVC)
+            if (layerType === 'advc_analysis') {
+                console.log(`  💜 Procesando ADVC... Features cercanas: ${nearbyFeatures.length}`);
+                if (nearbyFeatures.length > 0) {
+                console.log(`  💜 ADVC encontradas dentro del radio: ${nearbyFeatures.length}`);
+                nearbyFeatures.forEach(item => {
+                    const props = item.feature.properties;
+                    const advc = {
+                        nombre: props.ADVC || props.NOMBRE || props.name || 'Sin nombre',
+                        entidad: props.ESTADO || props.ENTIDAD || 'N/A',
+                        municipio: props.MUNICIPIO || props.MUN_DEC || 'N/A',
+                        distancia: item.distance,
+                        intersecta: item.intersects || false
+                    };
+                    analysisStats.areasVoluntarias.push(advc);
+                    
+                    // Dibujar polígono del ADVC
+                    const advcLayer = L.geoJSON(item.feature, {
+                        style: {
+                            fillColor: advc.intersecta ? '#AB47BC' : '#CE93D8',
+                            color: advc.intersecta ? '#7B1FA2' : '#BA68C8',
+                            weight: 2,
+                            opacity: 0.8,
+                            fillOpacity: 0.2
+                        }
+                    });
+                    
+                    // Crear popup para ADVC
+                    const advcPopupContent = `
+                        <div style="font-family: var(--font-family-body); min-width: 220px;">
+                            <div style="background: linear-gradient(135deg, #AB47BC 0%, #BA68C8 100%); padding: 10px; margin: -10px -10px 10px -10px; border-radius: 4px 4px 0 0;">
+                                <h4 style="margin: 0; color: white; font-size: 14px;">
+                                    <i class="bi bi-heart-fill"></i> ADVC
+                                </h4>
+                            </div>
+                            
+                            <div style="font-size: 14px; font-weight: 600; color: #7B1FA2; margin-bottom: 8px;">
+                                ${advc.nombre}
+                            </div>
+                            <div style="font-size: 12px; color: #666; margin-bottom: 12px;">
+                                <i class="bi bi-geo-alt-fill"></i> ${advc.entidad} • ${advc.municipio}
+                            </div>
+                            
+                            <div style="padding: 8px; background: ${advc.intersecta ? '#F3E5F5' : '#FCE4EC'}; border-radius: 4px; text-align: center;">
+                                <div style="font-weight: 600; font-size: 13px; color: ${advc.intersecta ? '#7B1FA2' : '#C2185B'};">
+                                    ${advc.intersecta ? 
+                                        '<i class="bi bi-check-circle-fill"></i> DENTRO' : 
+                                        `<i class="bi bi-rulers"></i> ${(advc.distancia/1000).toFixed(2)} km`
+                                    }
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 10px; font-size: 11px; color: #999; text-align: center;">
+                                <i class="bi bi-info-circle"></i> Ver detalles abajo ↓
+                            </div>
+                        </div>
+                    `;
+                    
+                    advcLayer.bindPopup(advcPopupContent, {
+                        maxWidth: 250,
+                        className: 'advc-popup'
+                    });
+                    
+                    advcLayer.addTo(presasAnalysisLayer);
+                });
+                } else {
+                    console.log(`  💜 No hay ADVC dentro del radio de ${currentSearchRadius/1000} km`);
+                }
+            }
 
             // Procesar Río Usumacinta - Calcular distancia siempre
             if (layerType === 'usumacinta_analysis') {
@@ -3788,7 +4256,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 
                 layerData.data.features.forEach(rioFeature => {
                     try {
-                        const distance = turf.pointToLineDistance(presaPoint, rioFeature, {units: 'meters'});
+                        let distance;
+                        const geomType = rioFeature.geometry.type;
+                        
+                        if (geomType === 'MultiLineString') {
+                            // Para MultiLineString, calcular distancia a cada línea
+                            let minDist = Infinity;
+                            rioFeature.geometry.coordinates.forEach(lineCoords => {
+                                const lineFeature = turf.lineString(lineCoords);
+                                const dist = turf.pointToLineDistance(presaPoint, lineFeature, {units: 'meters'});
+                                if (dist < minDist) {
+                                    minDist = dist;
+                                }
+                            });
+                            distance = minDist;
+                        } else {
+                            distance = turf.pointToLineDistance(presaPoint, rioFeature, {units: 'meters'});
+                        }
+                        
                         if (distance < minDistanceTotal) {
                             minDistanceTotal = distance;
                         }
@@ -3903,11 +4388,131 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Calcular distancia a Ramsar más cercano
                     let ramsarCercano = null;
                     let distanciaRamsarMin = Infinity;
+                    
+                    // Si hay Ramsar dentro del radio, usar esos
                     if (analysisStats.sitiosRamsar.length > 0) {
                         analysisStats.sitiosRamsar.forEach(ramsar => {
                             if (ramsar.distancia < distanciaRamsarMin) {
                                 distanciaRamsarMin = ramsar.distancia;
                                 ramsarCercano = ramsar.nombre;
+                            }
+                        });
+                    } else if (presasDataLayers['ramsar_analysis']) {
+                        // Si no hay Ramsar en el radio, buscar el más cercano de todos
+                        const ramsarData = presasDataLayers['ramsar_analysis'];
+                        const localidadPoint = turf.point([coords[0], coords[1]]);
+                        
+                        ramsarData.data.features.forEach(ramsarFeature => {
+                            try {
+                                const distance = turf.pointToLineDistance(
+                                    localidadPoint, 
+                                    turf.polygonToLine(ramsarFeature),
+                                    {units: 'meters'}
+                                );
+                                if (distance < distanciaRamsarMin) {
+                                    distanciaRamsarMin = distance;
+                                    ramsarCercano = ramsarFeature.properties.RAMSAR || ramsarFeature.properties.name || 'Sin nombre';
+                                }
+                            } catch (e) {
+                                // Si falla, intentar con el centroide
+                                try {
+                                    const ramsarCentroid = turf.centroid(ramsarFeature);
+                                    const distance = turf.distance(localidadPoint, ramsarCentroid, {units: 'meters'});
+                                    if (distance < distanciaRamsarMin) {
+                                        distanciaRamsarMin = distance;
+                                        ramsarCercano = ramsarFeature.properties.RAMSAR || ramsarFeature.properties.name || 'Sin nombre';
+                                    }
+                                } catch (e2) {
+                                    console.warn('Error calculando distancia a Ramsar:', e2);
+                                }
+                            }
+                        });
+                    }
+                    
+                    // Calcular distancia a ANP más cercana (buscar en TODAS las ANP, no solo las del radio)
+                    let anpCercana = null;
+                    let distanciaANPMin = Infinity;
+                    
+                    // Si hay ANP dentro del radio, usar esas
+                    if (analysisStats.areasNaturales.length > 0) {
+                        analysisStats.areasNaturales.forEach(anp => {
+                            if (anp.distancia < distanciaANPMin) {
+                                distanciaANPMin = anp.distancia;
+                                anpCercana = anp.nombre;
+                            }
+                        });
+                    } else if (presasDataLayers['anp_analysis']) {
+                        // Si no hay ANP en el radio, buscar la más cercana de todas
+                        const anpData = presasDataLayers['anp_analysis'];
+                        const localidadPoint = turf.point([coords[0], coords[1]]);
+                        
+                        anpData.data.features.forEach(anpFeature => {
+                            try {
+                                const distance = turf.pointToLineDistance(
+                                    localidadPoint, 
+                                    turf.polygonToLine(anpFeature),
+                                    {units: 'meters'}
+                                );
+                                if (distance < distanciaANPMin) {
+                                    distanciaANPMin = distance;
+                                    anpCercana = anpFeature.properties.NOMBRE || 'Sin nombre';
+                                }
+                            } catch (e) {
+                                // Si falla, intentar con el centroide
+                                try {
+                                    const anpCentroid = turf.centroid(anpFeature);
+                                    const distance = turf.distance(localidadPoint, anpCentroid, {units: 'meters'});
+                                    if (distance < distanciaANPMin) {
+                                        distanciaANPMin = distance;
+                                        anpCercana = anpFeature.properties.NOMBRE || 'Sin nombre';
+                                    }
+                                } catch (e2) {
+                                    console.warn('Error calculando distancia a ANP:', e2);
+                                }
+                            }
+                        });
+                    }
+                    
+                    // Calcular distancia a ADVC más cercana
+                    let advcCercana = null;
+                    let distanciaADVCMin = Infinity;
+                    
+                    // Si hay ADVC dentro del radio, usar esas
+                    if (analysisStats.areasVoluntarias.length > 0) {
+                        analysisStats.areasVoluntarias.forEach(advc => {
+                            if (advc.distancia < distanciaADVCMin) {
+                                distanciaADVCMin = advc.distancia;
+                                advcCercana = advc.nombre;
+                            }
+                        });
+                    } else if (presasDataLayers['advc_analysis']) {
+                        // Si no hay ADVC en el radio, buscar la más cercana de todas
+                        const advcData = presasDataLayers['advc_analysis'];
+                        const localidadPoint = turf.point([coords[0], coords[1]]);
+                        
+                        advcData.data.features.forEach(advcFeature => {
+                            try {
+                                const distance = turf.pointToLineDistance(
+                                    localidadPoint, 
+                                    turf.polygonToLine(advcFeature),
+                                    {units: 'meters'}
+                                );
+                                if (distance < distanciaADVCMin) {
+                                    distanciaADVCMin = distance;
+                                    advcCercana = advcFeature.properties.ADVC || advcFeature.properties.NOMBRE || advcFeature.properties.nombre || 'Sin nombre';
+                                }
+                            } catch (e) {
+                                // Si falla, intentar con el centroide
+                                try {
+                                    const advcCentroid = turf.centroid(advcFeature);
+                                    const distance = turf.distance(localidadPoint, advcCentroid, {units: 'meters'});
+                                    if (distance < distanciaADVCMin) {
+                                        distanciaADVCMin = distance;
+                                        advcCercana = advcFeature.properties.ADVC || advcFeature.properties.NOMBRE || advcFeature.properties.nombre || 'Sin nombre';
+                                    }
+                                } catch (e2) {
+                                    console.warn('Error calculando distancia a ADVC:', e2);
+                                }
                             }
                         });
                     }
@@ -3919,13 +4524,30 @@ document.addEventListener('DOMContentLoaded', function () {
                         const localidadPoint = turf.point([coords[0], coords[1]]);
                         try {
                             rioData.data.features.forEach(rioFeature => {
-                                const dist = turf.pointToLineDistance(localidadPoint, rioFeature, {units: 'kilometers'});
+                                const geomType = rioFeature.geometry.type;
+                                let dist;
+                                
+                                if (geomType === 'MultiLineString') {
+                                    // Para MultiLineString, calcular distancia a cada línea
+                                    let minDist = Infinity;
+                                    rioFeature.geometry.coordinates.forEach(lineCoords => {
+                                        const lineFeature = turf.lineString(lineCoords);
+                                        const d = turf.pointToLineDistance(localidadPoint, lineFeature, {units: 'kilometers'});
+                                        if (d < minDist) {
+                                            minDist = d;
+                                        }
+                                    });
+                                    dist = minDist;
+                                } else {
+                                    dist = turf.pointToLineDistance(localidadPoint, rioFeature, {units: 'kilometers'});
+                                }
+                                
                                 if (distanciaRio === null || dist < distanciaRio) {
                                     distanciaRio = dist;
                                 }
                             });
                         } catch (e) {
-                            console.warn('Error calculando distancia al río:', e);
+                            console.warn('Error calculando distancia al río desde localidad:', e);
                         }
                     }
                     
@@ -3938,6 +4560,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         hogaresIndigenas: props.PIHOGARES || 0,
                         distanciaPresa: (item.distance / 1000).toFixed(2),
                         sitioRamsar: ramsarCercano ? `${ramsarCercano} (${(distanciaRamsarMin/1000).toFixed(2)} km)` : null,
+                        areaNatural: anpCercana ? `${anpCercana} (${(distanciaANPMin/1000).toFixed(2)} km)` : null,
+                        areaVoluntaria: advcCercana ? `${advcCercana} (${(distanciaADVCMin/1000).toFixed(2)} km)` : null,
                         distanciaRio: distanciaRio !== null ? `${distanciaRio.toFixed(2)} km` : null
                     });
 
@@ -4137,19 +4761,6 @@ document.addEventListener('DOMContentLoaded', function () {
             };
             summaryPanel.addTo(map);
         }
-
-        // Centrar mapa en la presa con el círculo de búsqueda visible
-        try {
-            // Obtener bounds de todas las capas en el grupo
-            const bounds = L.featureGroup(presasAnalysisLayer.getLayers()).getBounds();
-            if (bounds.isValid()) {
-                map.fitBounds(bounds.pad(0.2));
-            }
-        } catch (error) {
-            console.warn('No se pudo centrar el mapa en el análisis:', error);
-            // Fallback: centrar en la presa con zoom apropiado
-            map.setView(presaLatLng, 11);
-        }
     }
 
     // Función específica para cargar presas con icono personalizado
@@ -4286,6 +4897,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
             console.log(`✅ Presas agregadas a instrumentLayerGroup:`, data.features ? data.features.length : 0, 'presas');
             console.log('🔵 Capas actuales en instrumentLayerGroup:', instrumentLayerGroup.getLayers().length);
+
+            // Centrar mapa en las presas cargadas
+            try {
+                const bounds = presasLayer.getBounds();
+                if (bounds.isValid()) {
+                    map.fitBounds(bounds, {
+                        padding: [50, 50],
+                        maxZoom: 7
+                    });
+                    console.log('🗺️ Mapa centrado en las presas');
+                }
+            } catch (error) {
+                console.warn('No se pudo centrar el mapa en las presas:', error);
+            }
 
         } catch (error) {
             console.error('❌ Error cargando presas:', error);
@@ -8429,6 +9054,10 @@ document.addEventListener('DOMContentLoaded', function () {
                                     }
                                 }
                                 console.log('🟡 Todas las capas adicionales cargadas');
+                                
+                                // Agregar leyenda de capas de conservación
+                                addConservationLayersLegend();
+                                console.log('🟡 Leyenda de capas de conservación agregada');
                             } else {
                                 console.log('🟡 No hay capas adicionales para cargar');
                             }

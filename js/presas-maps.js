@@ -16,6 +16,14 @@ const PRESAS_MAPS = [
                 type: 'ramsar'
             },
             {
+                url: 'https://cdn.sassoapps.com/Mapas/ANP2025.geojson',
+                type: 'anp'
+            },
+            {
+                url: 'https://cdn.sassoapps.com/Mapas/areas_destinadas_voluntariamentea_la_conservaci%C3%B3n.geojson',
+                type: 'advc'
+            },
+            {
                 url: 'https://cdn.sassoapps.com/Mapas/Electricidad/usumacinta.geojson',
                 type: 'usumacinta'
             }
@@ -41,6 +49,20 @@ const PRESAS_MAPS = [
                 type: 'usumacinta_analysis',
                 name: 'Río Usumacinta',
                 geometryType: 'LineString',
+                visible: false
+            },
+            {
+                url: 'https://cdn.sassoapps.com/Mapas/ANP2025.geojson',
+                type: 'anp_analysis',
+                name: 'Áreas Naturales Protegidas',
+                geometryType: 'Polygon',
+                visible: false
+            },
+            {
+                url: 'https://cdn.sassoapps.com/Mapas/areas_destinadas_voluntariamentea_la_conservaci%C3%B3n.geojson',
+                type: 'advc_analysis',
+                name: 'Áreas Destinadas Voluntariamente a la Conservación',
+                geometryType: 'Polygon',
                 visible: false
             }
         ],
