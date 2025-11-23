@@ -20,14 +20,28 @@ const PRESAS_MAPS = [
                 type: 'usumacinta'
             }
         ],
-        // Capas de datos para análisis espacial (no se muestran hasta seleccionar una presa)
+        // Capas de datos para análisis espacial
         dataLayers: [
             {
                 url: 'https://cdn.sassoapps.com/Gabvy/loc_indigenas_datos.geojson',
                 type: 'localidades_indigenas',
                 name: 'Localidades Indígenas',
-                searchRadius: 10000, // 10 km en metros
-                visible: false // No mostrar por defecto
+                geometryType: 'Point',
+                visible: false
+            },
+            {
+                url: 'https://cdn.sassoapps.com/Gabvy/ramsar.geojson',
+                type: 'ramsar_analysis',
+                name: 'Sitios Ramsar',
+                geometryType: 'Polygon',
+                visible: false
+            },
+            {
+                url: 'https://cdn.sassoapps.com/Mapas/Electricidad/usumacinta.geojson',
+                type: 'usumacinta_analysis',
+                name: 'Río Usumacinta',
+                geometryType: 'LineString',
+                visible: false
             }
         ],
         center: [23.6345, -102.5528], // Centro de México

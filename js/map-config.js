@@ -1047,6 +1047,8 @@ document.addEventListener('DOMContentLoaded', function () {
     let presasDataLayers = {}; // Store data layers (localidades indígenas, etc.)
     let presasAnalysisLayer = null; // Layer para análisis espacial (círculos, localidades cercanas)
     let currentPresaSelected = null; // Presa actualmente seleccionada
+    let currentSearchRadius = 10000; // Radio de búsqueda en metros (default 10km)
+    let radiusControl = null; // Control del slider de radio
 
     // Petrolíferos data
     let petroliferosPermitsData = []; // Store petroliferos permits data
@@ -3250,6 +3252,63 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Crear control de radio de búsqueda
+    function createRadiusControl() {
+        if (radiusControl) {
+            map.removeControl(radiusControl);
+        }
+        
+        radiusControl = L.control({position: 'topleft'});
+        radiusControl.onAdd = function() {
+            const div = L.DomUtil.create('div', 'radius-control');
+            div.innerHTML = `
+                <div style="background: white; padding: 12px 15px; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.3); min-width: 250px; font-family: 'Montserrat', sans-serif; margin-top: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <label style="font-size: 13px; font-weight: 600; color: #333;">
+                            <i class="bi bi-bullseye"></i> Radio de Búsqueda
+                        </label>
+                        <span id="radius-value" style="font-weight: 700; color: #1f7a62; font-size: 14px;">${currentSearchRadius/1000} km</span>
+                    </div>
+                    <input type="range" id="radius-slider" min="5" max="50" step="5" value="${currentSearchRadius/1000}" 
+                           style="width: 100%; cursor: pointer;">
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; color: #999; margin-top: 4px;">
+                        <span>5 km</span>
+                        <span>50 km</span>
+                    </div>
+                    <button id="apply-radius-btn" style="width: 100%; margin-top: 10px; padding: 8px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px;">
+                        <i class="bi bi-arrow-clockwise"></i> Actualizar Análisis
+                    </button>
+                </div>
+            `;
+            
+            L.DomEvent.disableClickPropagation(div);
+            
+            return div;
+        };
+        
+        radiusControl.addTo(map);
+        
+        // Event listeners
+        setTimeout(() => {
+            const slider = document.getElementById('radius-slider');
+            const valueDisplay = document.getElementById('radius-value');
+            const applyBtn = document.getElementById('apply-radius-btn');
+            
+            if (slider && valueDisplay) {
+                slider.addEventListener('input', function() {
+                    currentSearchRadius = this.value * 1000;
+                    valueDisplay.textContent = this.value + ' km';
+                });
+            }
+            
+            if (applyBtn && currentPresaSelected) {
+                applyBtn.addEventListener('click', function() {
+                    analyzePresaResources(currentPresaSelected.latlng, currentPresaSelected.name);
+                });
+            }
+        }, 100);
+    }
+
     // Función para analizar recursos cercanos a una presa
     function analyzePresaResources(presaLatLng, presaNombre) {
         // Limpiar análisis anterior
@@ -3258,37 +3317,67 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         presasAnalysisLayer = L.layerGroup().addTo(map);
 
-        console.log('🔍 Analizando recursos cercanos a:', presaNombre);
+        // Mostrar control de radio si no existe
+        if (!radiusControl) {
+            createRadiusControl();
+        }
+
+        console.log(`🔍 Analizando recursos cercanos a: ${presaNombre} (Radio: ${currentSearchRadius/1000}km)`);
         
         // Objeto para almacenar estadísticas del análisis
         const analysisStats = {
             presaNombre: presaNombre,
+            radioKm: currentSearchRadius / 1000,
             totalLocalidades: 0,
             poblacionTotal: 0,
             hogaresIndigenas: 0,
-            poblacionAfro: 0
+            poblacionAfro: 0,
+            sitiosRamsar: [],
+            distanciaRioUsumacinta: null
         };
 
         // Analizar cada dataLayer
         Object.keys(presasDataLayers).forEach(layerType => {
             const layerData = presasDataLayers[layerType];
             const config = layerData.config;
-            const radius = config.searchRadius || 10000; // Default 10km
+            const radius = currentSearchRadius; // Usar radio actual
 
-            // Dibujar círculo de búsqueda
-            const searchCircle = L.circle(presaLatLng, {
-                radius: radius,
-                color: '#FF6B6B',
-                fillColor: '#FF6B6B',
-                fillOpacity: 0.1,
-                weight: 2,
-                dashArray: '5, 10'
-            }).addTo(presasAnalysisLayer);
+            // Dibujar círculo de búsqueda (solo una vez)
+            if (layerType === Object.keys(presasDataLayers)[0]) {
+                const searchCircle = L.circle(presaLatLng, {
+                    radius: radius,
+                    color: '#FF6B6B',
+                    fillColor: '#FF6B6B',
+                    fillOpacity: 0.1,
+                    weight: 2,
+                    dashArray: '5, 10',
+                    interactive: false // No interactivo para evitar clics
+                }).addTo(presasAnalysisLayer);
+                
+                // Agregar etiqueta al círculo
+                const circleLabel = L.marker(presaLatLng, {
+                    icon: L.divIcon({
+                        className: 'circle-label',
+                        html: `
+                            <div style="background: rgba(255, 107, 107, 0.9); color: white; padding: 5px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
+                                <i class="bi bi-bullseye"></i> Radio: ${(radius/1000)} km
+                            </div>
+                        `,
+                        iconSize: [100, 30],
+                        iconAnchor: [50, -20]
+                    }),
+                    interactive: false
+                }).addTo(presasAnalysisLayer);
+            }
 
-            // Buscar features dentro del radio
+            // Buscar features dentro del radio según tipo de geometría
             const nearbyFeatures = [];
+            
             layerData.data.features.forEach(feature => {
-                if (feature.geometry.type === 'Point') {
+                const geomType = feature.geometry.type;
+                
+                if (geomType === 'Point') {
+                    // Análisis para puntos (localidades)
                     const featureLatLng = L.latLng(
                         feature.geometry.coordinates[1],
                         feature.geometry.coordinates[0]
@@ -3300,6 +3389,44 @@ document.addEventListener('DOMContentLoaded', function () {
                             feature: feature,
                             distance: distance
                         });
+                    }
+                } else if (geomType === 'MultiPolygon' || geomType === 'Polygon') {
+                    // Análisis para polígonos (Ramsar)
+                    const presaPoint = turf.point([presaLatLng.lng, presaLatLng.lat]);
+                    const presaBuffer = turf.buffer(presaPoint, radius / 1000, {units: 'kilometers'});
+                    
+                    try {
+                        const intersects = turf.booleanIntersects(presaBuffer, feature);
+                        if (intersects) {
+                            // Calcular distancia al borde más cercano del polígono
+                            const distance = turf.pointToLineDistance(
+                                presaPoint, 
+                                turf.polygonToLine(feature),
+                                {units: 'meters'}
+                            );
+                            nearbyFeatures.push({
+                                feature: feature,
+                                distance: distance,
+                                intersects: true
+                            });
+                        }
+                    } catch (e) {
+                        console.warn('Error calculando intersección con polígono:', e);
+                    }
+                } else if (geomType === 'LineString' || geomType === 'MultiLineString') {
+                    // Análisis para líneas (ríos)
+                    const presaPoint = turf.point([presaLatLng.lng, presaLatLng.lat]);
+                    
+                    try {
+                        const distance = turf.pointToLineDistance(presaPoint, feature, {units: 'meters'});
+                        if (distance <= radius) {
+                            nearbyFeatures.push({
+                                feature: feature,
+                                distance: distance
+                            });
+                        }
+                    } catch (e) {
+                        console.warn('Error calculando distancia a línea:', e);
                     }
                 }
             });
@@ -3321,6 +3448,108 @@ document.addEventListener('DOMContentLoaded', function () {
                         iconAnchor: [100, 20]
                     })
                 }).addTo(presasAnalysisLayer);
+            }
+
+            // Procesar Sitios Ramsar
+            if (layerType === 'ramsar_analysis' && nearbyFeatures.length > 0) {
+                console.log(`  🌿 Sitios Ramsar encontrados: ${nearbyFeatures.length}`);
+                nearbyFeatures.forEach(item => {
+                    const props = item.feature.properties;
+                    const ramsar = {
+                        nombre: props.RAMSAR || 'Sin nombre',
+                        estado: props.ESTADO || 'N/A',
+                        municipios: props.MUNICIPIOS || 'N/A',
+                        distancia: item.distance,
+                        intersecta: item.intersects || false
+                    };
+                    analysisStats.sitiosRamsar.push(ramsar);
+                    
+                    // Dibujar polígono del sitio Ramsar
+                    const ramsarLayer = L.geoJSON(item.feature, {
+                        style: {
+                            fillColor: ramsar.intersecta ? '#4CAF50' : '#FFA726',
+                            color: ramsar.intersecta ? '#2E7D32' : '#F57C00',
+                            weight: 2,
+                            opacity: 0.8,
+                            fillOpacity: 0.2
+                        }
+                    });
+                    
+                    // Crear popup para el sitio Ramsar
+                    const ramsarPopupContent = `
+                        <div style="font-family: 'Montserrat', sans-serif; max-width: 300px;">
+                            <h4 style="margin: 0 0 10px 0; color: #4CAF50;">
+                                <i class="bi bi-tree-fill"></i> Sitio Ramsar
+                            </h4>
+                            <div style="margin-bottom: 8px;">
+                                <strong>Nombre:</strong> ${ramsar.nombre}
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <strong>Estado:</strong> ${ramsar.estado}
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <strong>Municipios:</strong> ${ramsar.municipios}
+                            </div>
+                            <hr style="margin: 10px 0; border: none; border-top: 1px solid #eee;">
+                            <div style="font-size: 0.9em; color: ${ramsar.intersecta ? '#4CAF50' : '#666'}; font-weight: 600;">
+                                ${ramsar.intersecta ? 
+                                    '<i class="bi bi-check-circle-fill"></i> La presa está DENTRO de este sitio' : 
+                                    `<i class="bi bi-rulers"></i> Distancia: ${(ramsar.distancia/1000).toFixed(2)} km`
+                                }
+                            </div>
+                        </div>
+                    `;
+                    
+                    ramsarLayer.bindPopup(ramsarPopupContent, {
+                        maxWidth: 320,
+                        className: 'ramsar-popup'
+                    });
+                    
+                    ramsarLayer.addTo(presasAnalysisLayer);
+                });
+            }
+            
+            // Procesar Río Usumacinta
+            if (layerType === 'usumacinta_analysis' && nearbyFeatures.length > 0) {
+                const minDistance = Math.min(...nearbyFeatures.map(f => f.distance));
+                analysisStats.distanciaRioUsumacinta = minDistance;
+                console.log(`  🌊 Río Usumacinta: ${(minDistance/1000).toFixed(2)} km`);
+                
+                // Dibujar el río con estilo destacado
+                nearbyFeatures.forEach(item => {
+                    const rioLayer = L.geoJSON(item.feature, {
+                        style: {
+                            color: '#0288D1',
+                            weight: 4,
+                            opacity: 0.8
+                        }
+                    });
+                    
+                    // Crear popup para el río
+                    const rioPopupContent = `
+                        <div style="font-family: 'Montserrat', sans-serif; max-width: 280px;">
+                            <h4 style="margin: 0 0 10px 0; color: #0288D1;">
+                                <i class="bi bi-water"></i> Río Usumacinta
+                            </h4>
+                            <div style="margin-bottom: 8px;">
+                                <strong>Distancia a la presa:</strong>
+                            </div>
+                            <div style="font-size: 1.2em; color: #0288D1; font-weight: 700; text-align: center; padding: 10px; background: #E3F2FD; border-radius: 4px;">
+                                <i class="bi bi-rulers"></i> ${(item.distance/1000).toFixed(2)} km
+                            </div>
+                            <div style="margin-top: 10px; font-size: 0.85em; color: #666;">
+                                <i class="bi bi-info-circle"></i> Uno de los ríos más importantes de México y Centroamérica
+                            </div>
+                        </div>
+                    `;
+                    
+                    rioLayer.bindPopup(rioPopupContent, {
+                        maxWidth: 300,
+                        className: 'rio-popup'
+                    });
+                    
+                    rioLayer.addTo(presasAnalysisLayer);
+                });
             }
 
             // Mostrar las localidades cercanas
@@ -3393,21 +3622,35 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // Mostrar resumen estadístico en consola
+        console.log('📊 Resumen del Análisis:');
+        console.log(`   • Radio: ${analysisStats.radioKm} km`);
         if (analysisStats.totalLocalidades > 0) {
-            console.log('📊 Resumen del Análisis:');
             console.log(`   • Localidades encontradas: ${analysisStats.totalLocalidades}`);
             console.log(`   • Población total: ${analysisStats.poblacionTotal.toLocaleString('es-MX')}`);
             console.log(`   • Hogares indígenas: ${analysisStats.hogaresIndigenas.toLocaleString('es-MX')}`);
             if (analysisStats.poblacionAfro > 0) {
                 console.log(`   • Población afrodescendiente: ${analysisStats.poblacionAfro.toLocaleString('es-MX')}`);
             }
+        }
+        if (analysisStats.sitiosRamsar.length > 0) {
+            console.log(`   • Sitios Ramsar: ${analysisStats.sitiosRamsar.length}`);
+            analysisStats.sitiosRamsar.forEach(ramsar => {
+                const status = ramsar.intersecta ? '(DENTRO)' : `(${(ramsar.distancia/1000).toFixed(2)} km)`;
+                console.log(`     - ${ramsar.nombre} ${status}`);
+            });
+        }
+        if (analysisStats.distanciaRioUsumacinta !== null) {
+            console.log(`   • Río Usumacinta: ${(analysisStats.distanciaRioUsumacinta/1000).toFixed(2)} km`);
+        }
+        
+        if (analysisStats.totalLocalidades > 0 || analysisStats.sitiosRamsar.length > 0 || analysisStats.distanciaRioUsumacinta !== null) {
             
             // Crear panel de resumen flotante
             const summaryPanel = L.control({position: 'bottomright'});
             summaryPanel.onAdd = function() {
                 const div = L.DomUtil.create('div', 'analysis-summary-panel');
                 div.innerHTML = `
-                    <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.3); min-width: 280px; font-family: 'Montserrat', sans-serif;">
+                    <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.3); min-width: 300px; max-width: 350px; font-family: 'Montserrat', sans-serif; max-height: 80vh; overflow-y: auto;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                             <h4 style="margin: 0; color: #601623; font-size: 14px;">
                                 <i class="bi bi-graph-up"></i> Análisis Espacial
@@ -3418,29 +3661,79 @@ document.addEventListener('DOMContentLoaded', function () {
                             </button>
                         </div>
                         <div style="font-size: 12px; color: #666; margin-bottom: 10px;">
-                            <strong>${presaNombre}</strong> • Radio: 10 km
+                            <strong>${presaNombre}</strong> • Radio: ${analysisStats.radioKm} km
                         </div>
                         <hr style="margin: 10px 0; border: none; border-top: 1px solid #eee;">
-                        <div style="font-size: 13px; line-height: 1.8;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                <span><i class="bi bi-geo-alt-fill" style="color: #FFA726;"></i> Localidades:</span>
-                                <strong>${analysisStats.totalLocalidades}</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                <span><i class="bi bi-people-fill" style="color: #1f7a62;"></i> Población:</span>
-                                <strong>${analysisStats.poblacionTotal.toLocaleString('es-MX')}</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                <span><i class="bi bi-house-fill" style="color: #2196F3;"></i> Hogares Indígenas:</span>
-                                <strong>${analysisStats.hogaresIndigenas.toLocaleString('es-MX')}</strong>
-                            </div>
-                            ${analysisStats.poblacionAfro > 0 ? `
-                                <div style="display: flex; justify-content: space-between;">
-                                    <span><i class="bi bi-people" style="color: #9C27B0;"></i> Población Afro:</span>
-                                    <strong>${analysisStats.poblacionAfro.toLocaleString('es-MX')}</strong>
+                        
+                        ${analysisStats.totalLocalidades > 0 ? `
+                            <div style="margin-bottom: 15px;">
+                                <h5 style="margin: 0 0 8px 0; color: #FFA726; font-size: 13px;">
+                                    <i class="bi bi-people-fill"></i> Localidades Indígenas
+                                </h5>
+                                <div style="font-size: 13px; line-height: 1.8; padding-left: 10px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                        <span><i class="bi bi-geo-alt-fill"></i> Total:</span>
+                                        <strong>${analysisStats.totalLocalidades}</strong>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                        <span><i class="bi bi-people"></i> Población:</span>
+                                        <strong>${analysisStats.poblacionTotal.toLocaleString('es-MX')}</strong>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                        <span><i class="bi bi-house"></i> Hogares Ind.:</span>
+                                        <strong>${analysisStats.hogaresIndigenas.toLocaleString('es-MX')}</strong>
+                                    </div>
+                                    ${analysisStats.poblacionAfro > 0 ? `
+                                        <div style="display: flex; justify-content: space-between;">
+                                            <span><i class="bi bi-people"></i> Pob. Afro:</span>
+                                            <strong>${analysisStats.poblacionAfro.toLocaleString('es-MX')}</strong>
+                                        </div>
+                                    ` : ''}
                                 </div>
-                            ` : ''}
-                        </div>
+                            </div>
+                        ` : ''}
+                        
+                        ${analysisStats.sitiosRamsar.length > 0 ? `
+                            <div style="margin-bottom: 15px;">
+                                <h5 style="margin: 0 0 8px 0; color: #4CAF50; font-size: 13px;">
+                                    <i class="bi bi-tree-fill"></i> Sitios Ramsar (${analysisStats.sitiosRamsar.length})
+                                </h5>
+                                <div style="font-size: 12px; line-height: 1.6; padding-left: 10px;">
+                                    ${analysisStats.sitiosRamsar.map(ramsar => `
+                                        <div style="margin-bottom: 8px; padding: 8px; background: #f5f5f5; border-radius: 4px; border-left: 3px solid ${ramsar.intersecta ? '#4CAF50' : '#FFA726'};">
+                                            <div style="font-weight: 600; color: #333;">${ramsar.nombre}</div>
+                                            <div style="color: #666; font-size: 11px; margin-top: 2px;">
+                                                ${ramsar.estado} • ${ramsar.municipios}
+                                            </div>
+                                            <div style="color: ${ramsar.intersecta ? '#4CAF50' : '#666'}; font-size: 11px; margin-top: 3px; font-weight: 600;">
+                                                ${ramsar.intersecta ? '✓ La presa está DENTRO del sitio' : `📍 ${(ramsar.distancia/1000).toFixed(2)} km de distancia`}
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        ${analysisStats.distanciaRioUsumacinta !== null ? `
+                            <div style="margin-bottom: 15px;">
+                                <h5 style="margin: 0 0 8px 0; color: #0288D1; font-size: 13px;">
+                                    <i class="bi bi-water"></i> Río Usumacinta
+                                </h5>
+                                <div style="font-size: 13px; line-height: 1.8; padding-left: 10px;">
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span><i class="bi bi-rulers"></i> Distancia:</span>
+                                        <strong>${(analysisStats.distanciaRioUsumacinta/1000).toFixed(2)} km</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        ${analysisStats.totalLocalidades === 0 && analysisStats.sitiosRamsar.length === 0 && analysisStats.distanciaRioUsumacinta === null ? `
+                            <div style="text-align: center; padding: 20px; color: #999;">
+                                <i class="bi bi-info-circle" style="font-size: 32px; display: block; margin-bottom: 10px;"></i>
+                                <p style="margin: 0; font-size: 13px;">No se encontraron recursos en el radio de búsqueda</p>
+                            </div>
+                        ` : ''}
                     </div>
                 `;
                 return div;
@@ -3613,8 +3906,8 @@ document.addEventListener('DOMContentLoaded', function () {
             name: presaNombre,
             latlng: presaLatLng
         };
+        map.closePopup(); // Cerrar el popup ANTES de iniciar análisis
         analyzePresaResources(presaLatLng, presaNombre);
-        map.closePopup(); // Cerrar el popup después de iniciar análisis
     };
 
     function createGradientPattern(color) {
