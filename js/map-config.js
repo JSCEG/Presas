@@ -1043,6 +1043,11 @@ document.addEventListener('DOMContentLoaded', function () {
         '32': 'Zacatecas'
     };
 
+    // Presas data - Análisis espacial
+    let presasDataLayers = {}; // Store data layers (localidades indígenas, etc.)
+    let presasAnalysisLayer = null; // Layer para análisis espacial (círculos, localidades cercanas)
+    let currentPresaSelected = null; // Presa actualmente seleccionada
+
     // Petrolíferos data
     let petroliferosPermitsData = []; // Store petroliferos permits data
     let petroliferosStats = {}; // Store petroliferos statistics
@@ -1704,6 +1709,14 @@ document.addEventListener('DOMContentLoaded', function () {
             map.removeLayer(markersClusterGroup);
             markersClusterGroup = null;
         }
+
+        // Clear presas analysis layers
+        if (presasAnalysisLayer) {
+            map.removeLayer(presasAnalysisLayer);
+            presasAnalysisLayer = null;
+        }
+        presasDataLayers = {};
+        currentPresaSelected = null;
 
         // Clear electricity permits data
         electricityPermitsData = [];
@@ -3212,9 +3225,247 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Función para cargar dataLayers (capas de datos para análisis)
+    async function loadPresasDataLayers(dataLayersConfig) {
+        if (!dataLayersConfig || !Array.isArray(dataLayersConfig)) {
+            return;
+        }
+
+        console.log('🟣 Cargando', dataLayersConfig.length, 'dataLayers para análisis espacial...');
+
+        for (const layerConfig of dataLayersConfig) {
+            try {
+                const response = await fetch(layerConfig.url);
+                const data = await response.json();
+                
+                presasDataLayers[layerConfig.type] = {
+                    data: data,
+                    config: layerConfig
+                };
+                
+                console.log(`✅ DataLayer cargado: ${layerConfig.name} (${data.features.length} features)`);
+            } catch (error) {
+                console.error(`❌ Error cargando dataLayer ${layerConfig.name}:`, error);
+            }
+        }
+    }
+
+    // Función para analizar recursos cercanos a una presa
+    function analyzePresaResources(presaLatLng, presaNombre) {
+        // Limpiar análisis anterior
+        if (presasAnalysisLayer) {
+            map.removeLayer(presasAnalysisLayer);
+        }
+        presasAnalysisLayer = L.layerGroup().addTo(map);
+
+        console.log('🔍 Analizando recursos cercanos a:', presaNombre);
+        
+        // Objeto para almacenar estadísticas del análisis
+        const analysisStats = {
+            presaNombre: presaNombre,
+            totalLocalidades: 0,
+            poblacionTotal: 0,
+            hogaresIndigenas: 0,
+            poblacionAfro: 0
+        };
+
+        // Analizar cada dataLayer
+        Object.keys(presasDataLayers).forEach(layerType => {
+            const layerData = presasDataLayers[layerType];
+            const config = layerData.config;
+            const radius = config.searchRadius || 10000; // Default 10km
+
+            // Dibujar círculo de búsqueda
+            const searchCircle = L.circle(presaLatLng, {
+                radius: radius,
+                color: '#FF6B6B',
+                fillColor: '#FF6B6B',
+                fillOpacity: 0.1,
+                weight: 2,
+                dashArray: '5, 10'
+            }).addTo(presasAnalysisLayer);
+
+            // Buscar features dentro del radio
+            const nearbyFeatures = [];
+            layerData.data.features.forEach(feature => {
+                if (feature.geometry.type === 'Point') {
+                    const featureLatLng = L.latLng(
+                        feature.geometry.coordinates[1],
+                        feature.geometry.coordinates[0]
+                    );
+                    const distance = presaLatLng.distanceTo(featureLatLng);
+                    
+                    if (distance <= radius) {
+                        nearbyFeatures.push({
+                            feature: feature,
+                            distance: distance
+                        });
+                    }
+                }
+            });
+
+            console.log(`  📍 ${config.name}: ${nearbyFeatures.length} recursos encontrados dentro de ${radius/1000}km`);
+
+            // Si no hay recursos cercanos, mostrar mensaje
+            if (nearbyFeatures.length === 0) {
+                const noDataMarker = L.marker(presaLatLng, {
+                    icon: L.divIcon({
+                        className: 'no-data-marker',
+                        html: `
+                            <div style="background: white; padding: 10px 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); white-space: nowrap;">
+                                <i class="bi bi-info-circle" style="color: #2196F3;"></i>
+                                <strong>No se encontraron ${config.name} en un radio de ${radius/1000}km</strong>
+                            </div>
+                        `,
+                        iconSize: [200, 40],
+                        iconAnchor: [100, 20]
+                    })
+                }).addTo(presasAnalysisLayer);
+            }
+
+            // Mostrar las localidades cercanas
+            if (layerType === 'localidades_indigenas' && nearbyFeatures.length > 0) {
+                // Acumular estadísticas
+                analysisStats.totalLocalidades = nearbyFeatures.length;
+                
+                nearbyFeatures.forEach(item => {
+                    const feature = item.feature;
+                    const props = feature.properties;
+                    const coords = feature.geometry.coordinates;
+                    
+                    // Acumular datos
+                    analysisStats.poblacionTotal += (props.POBTOTAL || 0);
+                    analysisStats.hogaresIndigenas += (props.PIHOGARES || 0);
+                    analysisStats.poblacionAfro += (props.POB_AFRO || 0);
+                    
+                    // Crear marcador para localidad indígena
+                    const marker = L.circleMarker([coords[1], coords[0]], {
+                        radius: 6,
+                        fillColor: '#FFA726',
+                        color: '#F57C00',
+                        weight: 2,
+                        fillOpacity: 0.8
+                    });
+
+                    // Crear popup con información
+                    const popupContent = `
+                        <div style="font-family: 'Montserrat', sans-serif; max-width: 350px;">
+                            <h4 style="margin: 0 0 10px 0; color: #F57C00;">
+                                <i class="bi bi-geo-alt-fill"></i> Localidad Indígena
+                            </h4>
+                            <div style="margin-bottom: 8px;">
+                                <strong>Localidad:</strong> ${props.LOCALIDAD || 'N/A'}
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <strong>Municipio:</strong> ${props.MUNICIPIO || 'N/A'}
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <strong>Entidad:</strong> ${props.ENTIDAD || 'N/A'}
+                            </div>
+                            <hr style="margin: 10px 0; border: none; border-top: 1px solid #eee;">
+                            <div style="margin-bottom: 8px;">
+                                <strong>Población Total:</strong> ${(props.POBTOTAL || 0).toLocaleString('es-MX')}
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <strong>Hogares Indígenas:</strong> ${(props.PIHOGARES || 0).toLocaleString('es-MX')} 
+                                (${props.pPIHOGARES ? props.pPIHOGARES.toFixed(2) : 0}%)
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <strong>Tipo:</strong> ${props.TIPOLOC_PI || 'N/A'}
+                            </div>
+                            ${props.POB_AFRO ? `
+                                <div style="margin-bottom: 8px;">
+                                    <strong>Población Afro:</strong> ${(props.POB_AFRO || 0).toLocaleString('es-MX')} 
+                                    (${props.pPOB_AFRO ? props.pPOB_AFRO.toFixed(2) : 0}%)
+                                </div>
+                            ` : ''}
+                            <hr style="margin: 10px 0; border: none; border-top: 1px solid #eee;">
+                            <div style="font-size: 0.9em; color: #666;">
+                                <i class="bi bi-rulers"></i> Distancia a presa: ${(item.distance / 1000).toFixed(2)} km
+                            </div>
+                        </div>
+                    `;
+
+                    marker.bindPopup(popupContent);
+                    marker.addTo(presasAnalysisLayer);
+                });
+            }
+        });
+
+        // Mostrar resumen estadístico en consola
+        if (analysisStats.totalLocalidades > 0) {
+            console.log('📊 Resumen del Análisis:');
+            console.log(`   • Localidades encontradas: ${analysisStats.totalLocalidades}`);
+            console.log(`   • Población total: ${analysisStats.poblacionTotal.toLocaleString('es-MX')}`);
+            console.log(`   • Hogares indígenas: ${analysisStats.hogaresIndigenas.toLocaleString('es-MX')}`);
+            if (analysisStats.poblacionAfro > 0) {
+                console.log(`   • Población afrodescendiente: ${analysisStats.poblacionAfro.toLocaleString('es-MX')}`);
+            }
+            
+            // Crear panel de resumen flotante
+            const summaryPanel = L.control({position: 'bottomright'});
+            summaryPanel.onAdd = function() {
+                const div = L.DomUtil.create('div', 'analysis-summary-panel');
+                div.innerHTML = `
+                    <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.3); min-width: 280px; font-family: 'Montserrat', sans-serif;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h4 style="margin: 0; color: #601623; font-size: 14px;">
+                                <i class="bi bi-graph-up"></i> Análisis Espacial
+                            </h4>
+                            <button onclick="this.parentElement.parentElement.parentElement.remove()" 
+                                    style="background: none; border: none; cursor: pointer; font-size: 18px; color: #999;">
+                                ×
+                            </button>
+                        </div>
+                        <div style="font-size: 12px; color: #666; margin-bottom: 10px;">
+                            <strong>${presaNombre}</strong> • Radio: 10 km
+                        </div>
+                        <hr style="margin: 10px 0; border: none; border-top: 1px solid #eee;">
+                        <div style="font-size: 13px; line-height: 1.8;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span><i class="bi bi-geo-alt-fill" style="color: #FFA726;"></i> Localidades:</span>
+                                <strong>${analysisStats.totalLocalidades}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span><i class="bi bi-people-fill" style="color: #1f7a62;"></i> Población:</span>
+                                <strong>${analysisStats.poblacionTotal.toLocaleString('es-MX')}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span><i class="bi bi-house-fill" style="color: #2196F3;"></i> Hogares Indígenas:</span>
+                                <strong>${analysisStats.hogaresIndigenas.toLocaleString('es-MX')}</strong>
+                            </div>
+                            ${analysisStats.poblacionAfro > 0 ? `
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span><i class="bi bi-people" style="color: #9C27B0;"></i> Población Afro:</span>
+                                    <strong>${analysisStats.poblacionAfro.toLocaleString('es-MX')}</strong>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                return div;
+            };
+            summaryPanel.addTo(map);
+        }
+
+        // Centrar mapa en la presa con el círculo de búsqueda visible
+        try {
+            // Obtener bounds de todas las capas en el grupo
+            const bounds = L.featureGroup(presasAnalysisLayer.getLayers()).getBounds();
+            if (bounds.isValid()) {
+                map.fitBounds(bounds.pad(0.2));
+            }
+        } catch (error) {
+            console.warn('No se pudo centrar el mapa en el análisis:', error);
+            // Fallback: centrar en la presa con zoom apropiado
+            map.setView(presaLatLng, 11);
+        }
+    }
+
     // Función específica para cargar presas con icono personalizado
     async function loadPresasGeoJSON(url, options) {
         const showPreloader = !(options && options.silent);
+        const mapConfig = options && options.mapConfig;
 
         console.log('🔵 loadPresasGeoJSON iniciando:', url);
 
@@ -3227,6 +3478,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const data = await response.json();
 
             console.log('🔵 Presas GeoJSON cargado:', data.features ? data.features.length : 0, 'features');
+
+            // Cargar dataLayers si existen
+            if (mapConfig && mapConfig.dataLayers) {
+                await loadPresasDataLayers(mapConfig.dataLayers);
+            }
 
             // Limpiar capas anteriores
             instrumentLayerGroup.clearLayers();
@@ -3271,6 +3527,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     const latitud = props.lat ? props.lat.toFixed(6) : '';
                     const longitud = props.lon ? props.lon.toFixed(6) : '';
 
+                    // Verificar si hay dataLayers disponibles para análisis
+                    const hasDataLayers = Object.keys(presasDataLayers).length > 0;
+
                     // Crear popup con diseño mejorado
                     const popupContent = `
                         <div class="presa-popup-container">
@@ -3312,11 +3571,22 @@ document.addEventListener('DOMContentLoaded', function () {
                                     <i class="bi bi-info-circle-fill"></i> ${props.observaciones || props.OBSERVACIONES}
                                 </div>
                             ` : ''}
+                            ${hasDataLayers ? `
+                                <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #eee;">
+                                    <button 
+                                        onclick="window.analyzePresaClick('${nombrePresa}', ${feature.geometry.coordinates[1]}, ${feature.geometry.coordinates[0]})"
+                                        style="width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;"
+                                    >
+                                        <i class="bi bi-search"></i>
+                                        Analizar Recursos Cercanos (10km)
+                                    </button>
+                                </div>
+                            ` : ''}
                         </div>
                     `;
 
                     layer.bindPopup(popupContent, {
-                        maxWidth: 350,
+                        maxWidth: 400,
                         className: 'presa-popup'
                     });
                 }
@@ -3335,6 +3605,17 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     }
+
+    // Exponer función de análisis globalmente para uso en popup
+    window.analyzePresaClick = function(presaNombre, lat, lng) {
+        const presaLatLng = L.latLng(lat, lng);
+        currentPresaSelected = {
+            name: presaNombre,
+            latlng: presaLatLng
+        };
+        analyzePresaResources(presaLatLng, presaNombre);
+        map.closePopup(); // Cerrar el popup después de iniciar análisis
+    };
 
     function createGradientPattern(color) {
         const canvas = document.createElement('canvas');
@@ -7442,7 +7723,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                         if (mapConfig.geojsonUrlType === 'presas') {
                             console.log('🟡 Cargando mapa de PRESAS');
-                            await loadPresasGeoJSON(mapConfig.geojsonUrl, { silent: false });
+                            await loadPresasGeoJSON(mapConfig.geojsonUrl, { silent: false, mapConfig: mapConfig });
                             
                             // Cargar capas adicionales si existen (Ramsar, Usumacinta, etc.)
                             if (mapConfig.additionalLayers && Array.isArray(mapConfig.additionalLayers)) {
