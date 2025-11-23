@@ -1,24 +1,68 @@
 :root {
-    --color-verde-profundo: #1f7a62;
+    /* --- Paleta de Colores Institucional (GobMX) --- */
+    --color-gobmx-guinda: #9B2247;
+    --color-gobmx-verde: #1E5B4F;
+    --color-gobmx-dorado: #A57F2C;
+    --color-gobmx-gris: #98989A;
+    --color-gobmx-gris-claro: #E5E5E5;
+
+    /* Variantes de Opacidad (para fondos) */
+    --color-gobmx-guinda-light: rgba(155, 34, 71, 0.05);
+    --color-gobmx-verde-light: rgba(30, 91, 79, 0.05);
+    --color-gobmx-dorado-light: rgba(165, 127, 44, 0.05);
+
+    /* Colores Funcionales */
+    --color-text-primary: #333333;
+    --color-text-secondary: var(--color-gobmx-gris);
+    --color-background: #FFFFFF;
+    --color-surface: #F8F9FA;
+    --color-border: #DDDDDD;
+
+    /* Compatibilidad con código existente */
+    --color-verde-profundo: var(--color-gobmx-verde);
     --color-verde-claro: #24a47a;
-    --color-text: #162230;
-    --color-muted: #5e6b7e;
-    --color-border: rgba(26, 52, 68, 0.14);
-    --color-surface: #ffffff;
-    --color-surface-soft: #f7f9fa;
-    /* Slightly cleaner off-white */
-    --color-pill-bg: rgba(32, 122, 98, 0.12);
-    --color-pill-text: #1f7a62;
-    --color-button: #1f7a62;
-    --color-button-hover: #165845;
-    --color-guinda: #1f7a62;
-    /* REPLACEMENT: Change guinda to verde-profundo */
-    --color-guinda-light: #24a47a;
-    /* REPLACEMENT: Change guinda-light to verde-claro */
-    --gradient-header: linear-gradient(120deg, #1f7a62 0%, #20785d 55%, #144935 100%);
-    --shadow-elevated: 0 22px 60px -28px rgba(16, 60, 46, 0.65);
-    --shadow-soft: 0 14px 45px -24px rgba(16, 60, 46, 0.5);
-    --shadow-card: 0 24px 60px -30px rgba(17, 69, 51, 0.4);
+    --color-text: var(--color-text-primary);
+    --color-muted: var(--color-text-secondary);
+    --color-surface-soft: var(--color-surface);
+    --color-pill-bg: rgba(30, 91, 79, 0.12);
+    --color-pill-text: var(--color-gobmx-verde);
+    --color-button: var(--color-gobmx-guinda);
+    --color-button-hover: #7a1b38;
+    --color-guinda: var(--color-gobmx-guinda);
+    --color-guinda-light: rgba(155, 34, 71, 0.2);
+
+    /* Gradientes institucionales */
+    --gradient-header: linear-gradient(120deg, var(--color-gobmx-guinda) 0%, #7a1b38 55%, #5a1429 100%);
+    --gradient-verde: linear-gradient(120deg, var(--color-gobmx-verde) 0%, #165845 55%, #0d3a2d 100%);
+
+    /* Sombras */
+    --shadow-elevated: 0 22px 60px -28px rgba(155, 34, 71, 0.25);
+    --shadow-soft: 0 14px 45px -24px rgba(30, 91, 79, 0.2);
+    --shadow-card: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    /* --- Tipografía --- */
+    --font-family-headings: 'Patria', 'Merriweather', serif;
+    --font-family-body: 'Noto Sans', 'Montserrat', sans-serif;
+
+    --font-size-base: 16px;
+    --font-size-h1: 2.5rem;
+    --font-size-h2: 2rem;
+    --font-size-h3: 1.75rem;
+    --font-size-h4: 1.5rem;
+    --font-size-small: 0.875rem;
+
+    /* --- Espaciado (Based on 8pt grid) --- */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem;
+
+    /* --- Bordes y Sombras --- */
+    --border-radius-sm: 4px;
+    --border-radius-md: 8px;
+
+    /* Transiciones */
     --transition-base: 0.25s ease;
 }
 
@@ -35,12 +79,13 @@ html {
 
 body {
     margin: 0;
-    font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-family: var(--font-family-body);
     background: var(--color-surface-soft);
-    color: var(--color-text);
+    color: var(--color-text-primary);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    line-height: 1.6;
 }
 
 img {
@@ -76,8 +121,7 @@ button {
     position: absolute;
     inset: 100% 0 auto 0;
     height: 4px;
-    background: var(--color-verde-profundo);
-    /* Simplified gradient */
+    background: var(--gradient-header);
 }
 
 .header-content {
@@ -123,16 +167,15 @@ button {
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--color-verde-profundo);
+    color: var(--color-gobmx-guinda);
 }
 
 .brand-title {
     font-size: clamp(1rem, 2.2vw, 1.35rem);
-    /* Reduced size */
     font-weight: 700;
     letter-spacing: 0.02em;
-    color: var(--color-text);
-    /* Use main text color */
+    color: var(--color-gobmx-verde);
+    font-family: var(--font-family-body);
 }
 
 .header-meta {
@@ -338,7 +381,7 @@ button {
 .control:focus {
     outline: none;
     border-color: var(--color-verde-profundo);
-    box-shadow: 0 0 0 3px rgba(31, 122, 98, 0.15);
+    box-shadow: 0 0 0 3px rgba(155, 34, 71, 0.15);
 }
 
 .control[type="text"] {
@@ -348,17 +391,17 @@ button {
 
 .btn-secondary {
     border: none;
-    border-radius: 8px;
-    padding: 0.6rem 1.25rem;
+    border-radius: var(--border-radius-sm);
+    padding: var(--spacing-xs) var(--spacing-md);
     font-size: 0.9rem;
     font-weight: 600;
+    font-family: var(--font-family-body);
     color: #ffffff;
-    background: var(--color-verde-profundo);
+    background: var(--color-gobmx-verde);
     cursor: pointer;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-soft);
     transition: all var(--transition-base);
     display: inline-flex;
-    /* Ensure icon and text align */
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
@@ -366,13 +409,13 @@ button {
 
 .btn-secondary:hover {
     transform: translateY(-1px);
-    background: var(--color-verde-claro);
-    box-shadow: 0 4px 10px rgba(31, 122, 98, 0.2);
+    background: #165845;
+    box-shadow: 0 4px 12px rgba(30, 91, 79, 0.3);
 }
 
 .btn-secondary:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(31, 122, 98, 0.2);
+    box-shadow: 0 0 0 3px rgba(155, 34, 71, 0.2);
 }
 
 /* Specific styles for icon-only buttons in toolbar */
@@ -389,21 +432,21 @@ button {
 }
 
 .card-toolbar .btn-icon:hover {
-    background: var(--color-verde-profundo);
+    background: var(--color-gobmx-guinda);
     color: white;
     transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(31, 122, 98, 0.2);
+    box-shadow: 0 4px 10px rgba(155, 34, 71, 0.3);
 }
 
 .card-toolbar .btn-icon:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(31, 122, 98, 0.2);
+    box-shadow: 0 0 0 3px rgba(155, 34, 71, 0.2);
 }
 
-/* Export buttons - unify under green theme */
+/* Export buttons - colores institucionales */
 #export-map-btn,
 #export-word-btn {
-    background: var(--color-verde-profundo);
+    background: var(--color-gobmx-guinda);
     color: white;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
@@ -412,7 +455,7 @@ button {
 #export-word-btn:hover {
     background: var(--color-verde-claro);
     transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(31, 122, 98, 0.2);
+    box-shadow: 0 4px 10px rgba(155, 34, 71, 0.2);
 }
 
 .map-content-wrapper {
@@ -424,17 +467,17 @@ button {
 
 .map-title-text {
     margin: 0 0 1rem 0;
-    /* Add margin-bottom directly to the title */
     font-size: clamp(1.1rem, 2vw, 1.4rem);
     font-weight: 700;
-    color: var(--color-text);
+    font-family: var(--font-family-body);
+    color: var(--color-gobmx-verde);
     letter-spacing: 0.03em;
     text-align: center;
 }
 
 .map-view {
     width: 100%;
-    min-height: 60vh;
+    min-height: 70vh;
     border-radius: 18px;
     overflow: hidden;
     position: relative;
@@ -453,7 +496,8 @@ button {
     margin: 0 0 0.5rem 0;
     font-size: 1.1rem;
     font-weight: 700;
-    color: var(--color-text);
+    font-family: var(--font-family-body);
+    color: var(--color-gobmx-verde);
 }
 
 .map-description p {
@@ -463,7 +507,7 @@ button {
 .map-inset {
     position: absolute;
     background: rgba(255, 255, 255, 0.94);
-    border: 1px solid rgba(31, 122, 98, 0.18);
+    border: 1px solid rgba(155, 34, 71, 0.18);
     border-radius: 12px;
     padding: 0.45rem;
     box-shadow: 0 16px 32px -22px rgba(0, 0, 0, 0.45);
@@ -502,7 +546,7 @@ button {
     position: absolute;
     width: 12px;
     height: 12px;
-    background: var(--color-verde-profundo);
+    background: var(--color-gobmx-guinda);
     border: 2px solid white;
     border-radius: 50%;
     opacity: 0.7;
@@ -640,7 +684,8 @@ button {
 .info-panel h2,
 .info-panel h3 {
     margin: 0;
-    color: var(--color-text);
+    font-family: var(--font-family-body);
+    color: var(--color-gobmx-guinda);
 }
 
 .info-panel p {
@@ -774,7 +819,7 @@ button {
 
 .progress-fill {
     height: 100%;
-    background: var(--color-verde-profundo);
+    background: var(--color-gobmx-guinda);
     width: 0%;
     border-radius: 999px;
     animation: fill-progress 2.5s ease-in-out forwards;
@@ -876,7 +921,7 @@ button {
 
 .btn-export:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(31, 122, 98, 0.28);
+    box-shadow: 0 0 0 3px rgba(155, 34, 71, 0.28);
 }
 
 .btn-export:active {
@@ -1055,8 +1100,8 @@ button {
 }
 
 .custom-size-section {
-    background: rgba(31, 122, 98, 0.05);
-    border: 1px solid rgba(31, 122, 98, 0.15);
+    background: rgba(155, 34, 71, 0.05);
+    border: 1px solid rgba(155, 34, 71, 0.15);
     border-radius: 12px;
     padding: 1rem;
     margin-top: 0.5rem;
@@ -1080,7 +1125,7 @@ button {
 }
 
 .radio-option:hover {
-    background: rgba(31, 122, 98, 0.05);
+    background: rgba(155, 34, 71, 0.05);
 }
 
 .radio-option input[type="radio"] {
@@ -1108,7 +1153,7 @@ button {
     transform: translate(-50%, -50%);
     width: 10px;
     height: 10px;
-    background: var(--color-verde-profundo);
+    background: var(--color-gobmx-guinda);
     border-radius: 50%;
 }
 
@@ -1136,7 +1181,7 @@ button {
 }
 
 .checkbox-option:hover {
-    background: rgba(31, 122, 98, 0.05);
+    background: rgba(155, 34, 71, 0.05);
 }
 
 .checkbox-option input[type="checkbox"] {
@@ -1154,7 +1199,7 @@ button {
 
 .checkbox-option input[type="checkbox"]:checked+.checkbox-custom {
     border-color: var(--color-verde-profundo);
-    background: var(--color-verde-profundo);
+    background: var(--color-gobmx-guinda);
 }
 
 .checkbox-option input[type="checkbox"]:checked+.checkbox-custom::after {
@@ -1362,7 +1407,7 @@ Notification system */
 .progress-spinner {
     width: 64px;
     height: 64px;
-    border: 4px solid rgba(31, 122, 98, 0.2);
+    border: 4px solid rgba(155, 34, 71, 0.2);
     border-top-color: var(--color-verde-profundo);
     border-radius: 50%;
     animation: spin 1s linear infinite;
@@ -1385,7 +1430,7 @@ Notification system */
 .progress-bar {
     width: 100%;
     height: 8px;
-    background: rgba(31, 122, 98, 0.15);
+    background: rgba(155, 34, 71, 0.15);
     border-radius: 999px;
     overflow: hidden;
     position: relative;
@@ -1552,7 +1597,7 @@ Notification system */
     position: absolute;
     background: rgba(255, 255, 255, 0.9);
     padding: 3px 8px;
-    border: 1px solid rgba(31, 122, 98, 0.5);
+    border: 1px solid rgba(155, 34, 71, 0.5);
     border-radius: 4px;
     font-size: 8px;
     font-weight: 600;
@@ -1776,7 +1821,7 @@ Notification system */
 }
 
 .leaflet-pane.leaflet-gerencias-pane path.gerencia-focused {
-    filter: drop-shadow(0 0 8px rgba(31, 122, 98, 0.8)) drop-shadow(0 0 15px rgba(31, 122, 98, 0.4));
+    filter: drop-shadow(0 0 8px rgba(155, 34, 71, 0.8)) drop-shadow(0 0 15px rgba(155, 34, 71, 0.4));
 }
 
 .leaflet-pane.leaflet-marinas-pane {
@@ -1820,7 +1865,7 @@ Notification system */
 }
 
 .pib-row-2030 {
-    border-bottom: 1px solid rgba(31, 122, 98, 0.3);
+    border-bottom: 1px solid rgba(155, 34, 71, 0.3);
     padding-bottom: 1px;
 }
 
@@ -1935,10 +1980,10 @@ Notification system */
 }
 
 .welcome-title {
-    color: var(--color-verde-profundo);
-    /* Use elegant green for title */
+    color: var(--color-gobmx-guinda);
     font-size: clamp(1.5rem, 3.5vw, 2rem);
     font-weight: 700;
+    font-family: var(--font-family-body);
     margin: 0 0 0.25rem 0;
     line-height: 1.1;
 }
@@ -1970,14 +2015,14 @@ Notification system */
     flex-shrink: 0;
     width: 40px;
     height: 40px;
-    background: var(--color-verde-profundo);
+    background: var(--color-gobmx-guinda);
     color: white;
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.25rem;
-    box-shadow: 0 4px 10px rgba(31, 122, 98, 0.2);
+    box-shadow: 0 4px 10px rgba(155, 34, 71, 0.2);
 }
 
 .instruction-content h3 {
@@ -2003,7 +2048,7 @@ Notification system */
     max-width: 300px;
     margin: 0 auto;
     padding: 0.8rem 1.5rem;
-    background: var(--color-verde-profundo);
+    background: var(--color-gobmx-guinda);
     color: white;
     border: none;
     border-radius: 50px;
@@ -2011,7 +2056,7 @@ Notification system */
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 20px rgba(31, 122, 98, 0.3);
+    box-shadow: 0 4px 20px rgba(155, 34, 71, 0.3);
 }
 
 .welcome-btn i {
@@ -2020,13 +2065,13 @@ Notification system */
 
 .welcome-btn:hover {
     transform: translateY(-3px) scale(1.03);
-    box-shadow: 0 8px 30px rgba(31, 122, 98, 0.4);
+    box-shadow: 0 8px 30px rgba(155, 34, 71, 0.4);
     background: var(--color-verde-claro);
 }
 
 .welcome-btn:active {
     transform: translateY(0);
-    box-shadow: 0 4px 10px rgba(31, 122, 98, 0.3);
+    box-shadow: 0 4px 10px rgba(155, 34, 71, 0.3);
 }
 
 .welcome-footer {
@@ -2083,7 +2128,7 @@ Notification system */
 }
 
 .leaflet-tooltip.node-label::before {
-    border-top-color: rgba(31, 122, 98, 0.3);
+    border-top-color: rgba(155, 34, 71, 0.3);
 }
 
 /* Marker Cluster Styles - Themed */
@@ -2151,7 +2196,7 @@ Notification system */
 
 /* Medium clusters */
 .marker-cluster-medium {
-    background-color: rgba(31, 122, 98, 0.6);
+    background-color: rgba(155, 34, 71, 0.6);
 }
 
 .marker-cluster-medium div {
@@ -2165,14 +2210,14 @@ Notification system */
     flex-shrink: 0;
     width: 40px;
     height: 40px;
-    background: var(--color-verde-profundo);
+    background: var(--color-gobmx-guinda);
     color: white;
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.25rem;
-    box-shadow: 0 4px 10px rgba(31, 122, 98, 0.2);
+    box-shadow: 0 4px 10px rgba(155, 34, 71, 0.2);
 }
 
 .instruction-content h3 {
@@ -2198,7 +2243,7 @@ Notification system */
     max-width: 300px;
     margin: 0 auto;
     padding: 0.8rem 1.5rem;
-    background: var(--color-verde-profundo);
+    background: var(--color-gobmx-guinda);
     color: white;
     border: none;
     border-radius: 50px;
@@ -2206,7 +2251,7 @@ Notification system */
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 20px rgba(31, 122, 98, 0.3);
+    box-shadow: 0 4px 20px rgba(155, 34, 71, 0.3);
 }
 
 .welcome-btn i {
@@ -2215,13 +2260,13 @@ Notification system */
 
 .welcome-btn:hover {
     transform: translateY(-3px) scale(1.03);
-    box-shadow: 0 8px 30px rgba(31, 122, 98, 0.4);
+    box-shadow: 0 8px 30px rgba(155, 34, 71, 0.4);
     background: var(--color-verde-claro);
 }
 
 .welcome-btn:active {
     transform: translateY(0);
-    box-shadow: 0 4px 10px rgba(31, 122, 98, 0.3);
+    box-shadow: 0 4px 10px rgba(155, 34, 71, 0.3);
 }
 
 .welcome-footer {
@@ -2278,7 +2323,7 @@ Notification system */
 }
 
 .leaflet-tooltip.node-label::before {
-    border-top-color: rgba(31, 122, 98, 0.3);
+    border-top-color: rgba(155, 34, 71, 0.3);
 }
 
 /* Marker Cluster Styles - Themed */
@@ -2346,7 +2391,7 @@ Notification system */
 
 /* Medium clusters */
 .marker-cluster-medium {
-    background-color: rgba(31, 122, 98, 0.6);
+    background-color: rgba(155, 34, 71, 0.6);
 }
 
 .marker-cluster-medium div {
@@ -2360,14 +2405,14 @@ Notification system */
     flex-shrink: 0;
     width: 40px;
     height: 40px;
-    background: var(--color-verde-profundo);
+    background: var(--color-gobmx-guinda);
     color: white;
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.25rem;
-    box-shadow: 0 4px 10px rgba(31, 122, 98, 0.2);
+    box-shadow: 0 4px 10px rgba(155, 34, 71, 0.2);
 }
 
 .instruction-content h3 {
@@ -2393,7 +2438,7 @@ Notification system */
     max-width: 300px;
     margin: 0 auto;
     padding: 0.8rem 1.5rem;
-    background: var(--color-verde-profundo);
+    background: var(--color-gobmx-guinda);
     color: white;
     border: none;
     border-radius: 50px;
@@ -2401,7 +2446,7 @@ Notification system */
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 20px rgba(31, 122, 98, 0.3);
+    box-shadow: 0 4px 20px rgba(155, 34, 71, 0.3);
 }
 
 .welcome-btn i {
@@ -2410,13 +2455,13 @@ Notification system */
 
 .welcome-btn:hover {
     transform: translateY(-3px) scale(1.03);
-    box-shadow: 0 8px 30px rgba(31, 122, 98, 0.4);
+    box-shadow: 0 8px 30px rgba(155, 34, 71, 0.4);
     background: var(--color-verde-claro);
 }
 
 .welcome-btn:active {
     transform: translateY(0);
-    box-shadow: 0 4px 10px rgba(31, 122, 98, 0.3);
+    box-shadow: 0 4px 10px rgba(155, 34, 71, 0.3);
 }
 
 .welcome-footer {
@@ -2473,7 +2518,7 @@ Notification system */
 }
 
 .leaflet-tooltip.node-label::before {
-    border-top-color: rgba(31, 122, 98, 0.3);
+    border-top-color: rgba(155, 34, 71, 0.3);
 }
 
 /* Marker Cluster Styles - Themed */
@@ -2541,11 +2586,11 @@ Notification system */
 
 /* Medium clusters */
 .marker-cluster-medium {
-    background-color: rgba(31, 122, 98, 0.6);
+    background-color: rgba(155, 34, 71, 0.6);
 }
 
 .marker-cluster-medium div {
-    background-color: rgba(31, 122, 98, 0.9);
+    background-color: rgba(155, 34, 71, 0.9);
 }
 
 /* Large clusters */
@@ -2578,7 +2623,8 @@ Notification system */
     text-align: center;
     pointer-events: none;
 }
-/* Estilo para el "efecto padre" de los pol�gonos de regi�n */
+
+/* Estilo para el "efecto padre" de los pol�gonos de regi�n */
 .region-polygon {
     transition: filter 0.3s ease;
     filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
@@ -2586,4 +2632,375 @@ Notification system */
 
 .region-polygon:hover {
     filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.5));
+}
+
+/* ===== TIPOGRAFÍA INSTITUCIONAL (GobMX) ===== */
+
+/* Títulos principales */
+h1 {
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-h1);
+    color: var(--color-gobmx-guinda);
+    font-weight: 700;
+    margin-bottom: var(--spacing-md);
+    line-height: 1.2;
+}
+
+h2 {
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-h2);
+    color: var(--color-gobmx-guinda);
+    font-weight: 700;
+    margin-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--color-gobmx-guinda);
+    padding-bottom: var(--spacing-xs);
+    line-height: 1.3;
+}
+
+h3 {
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-h3);
+    color: var(--color-gobmx-verde);
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+    line-height: 1.3;
+}
+
+h4 {
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-h4);
+    color: var(--color-gobmx-dorado);
+    font-weight: 600;
+    margin-bottom: var(--spacing-xs);
+    line-height: 1.4;
+}
+
+/* Párrafos */
+p {
+    font-family: var(--font-family-body);
+    color: var(--color-text-primary);
+    line-height: 1.6;
+}
+
+/* Enlaces */
+a {
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    font-size: 14px;
+    /* Increased for better visibility */
+    font-weight: 700;
+    color: #1f7a62;
+    /* Kept the green color */
+    box-shadow: none;
+    backdrop-filter: none;
+    text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 0 3px #fff;
+    /* White outline */
+}
+
+.leaflet-tooltip.node-label::before {
+    border-top-color: rgba(155, 34, 71, 0.3);
+}
+
+/* Marker Cluster Styles - Themed */
+.marker-cluster {
+    background-clip: padding-box;
+    border-radius: 50%;
+    z-index: 650 !important;
+}
+
+.marker-cluster div {
+    width: 30px;
+    height: 30px;
+    margin-left: 5px;
+    margin-top: 5px;
+    text-align: center;
+    border-radius: 50%;
+    font-size: 12px;
+    line-height: 30px;
+    color: #ffffff;
+    font-weight: 700;
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* State and GCR Tooltips with Enhanced Visibility */
+.leaflet-tooltip.state-tooltip,
+.leaflet-tooltip.gcr-tooltip {
+    background: rgba(255, 255, 255, 0.98) !important;
+    border: 2px solid var(--color-verde-profundo) !important;
+    border-radius: 6px !important;
+    padding: 6px 12px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: var(--color-verde-profundo) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+    backdrop-filter: blur(8px);
+}
+
+.leaflet-tooltip.state-tooltip::before,
+.leaflet-tooltip.gcr-tooltip::before {
+    border-top-color: var(--color-verde-profundo) !important;
+}
+
+/* Custom electricity marker icon */
+.electricity-marker-icon {
+    background: transparent !important;
+    border: none !important;
+    z-index: 650 !important;
+}
+
+.electricity-marker-icon img {
+    display: block;
+    width: 32px;
+    height: 32px;
+    filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.3));
+}
+
+/* Small clusters */
+.marker-cluster-small {
+    background-color: rgba(36, 164, 122, 0.5);
+}
+
+.marker-cluster-small div {
+    background-color: rgba(36, 164, 122, 0.8);
+}
+
+/* Medium clusters */
+.marker-cluster-medium {
+    background-color: rgba(155, 34, 71, 0.6);
+}
+
+.marker-cluster-medium div {
+    background-color: rgba(155, 34, 71, 0.9);
+}
+
+/* Large clusters */
+.marker-cluster-large {
+    background-color: rgba(22, 34, 48, 0.7);
+}
+
+/* Hide labels when toggled off */
+.hide-node-labels .node-label,
+.hide-node-labels .region-label {
+    display: none !important;
+}
+
+/* Region Label Styling */
+.region-label {
+    background: transparent !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+.region-label span {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 14px;
+    text-shadow: 0 0 4px #000000, 0 0 4px #000000;
+    text-transform: uppercase;
+    white-space: nowrap;
+    text-align: center;
+    pointer-events: none;
+}
+
+/* Estilo para el "efecto padre" de los polgonos de regin */
+.region-polygon {
+    transition: filter 0.3s ease;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
+}
+
+.region-polygon:hover {
+    filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.5));
+}
+
+/* ===== TIPOGRAFÍA INSTITUCIONAL (GobMX) ===== */
+
+/* Títulos principales */
+h1 {
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-h1);
+    color: var(--color-gobmx-guinda);
+    font-weight: 700;
+    margin-bottom: var(--spacing-md);
+    line-height: 1.2;
+}
+
+h2 {
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-h2);
+    color: var(--color-gobmx-guinda);
+    font-weight: 700;
+    margin-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--color-gobmx-guinda);
+    padding-bottom: var(--spacing-xs);
+    line-height: 1.3;
+}
+
+h3 {
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-h3);
+    color: var(--color-gobmx-verde);
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+    line-height: 1.3;
+}
+
+h4 {
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-h4);
+    color: var(--color-gobmx-dorado);
+    font-weight: 600;
+    margin-bottom: var(--spacing-xs);
+    line-height: 1.4;
+}
+
+/* Párrafos */
+p {
+    font-family: var(--font-family-body);
+    color: var(--color-text-primary);
+    line-height: 1.6;
+}
+
+/* Enlaces */
+a {
+    color: var(--color-gobmx-guinda);
+    text-decoration: none;
+    transition: color var(--transition-base);
+}
+
+a:hover {
+    color: var(--color-button-hover);
+    text-decoration: underline;
+}
+
+/* ===== ESTILOS PARA POPUP DE PRESAS (Elegante) ===== */
+.presa-popup .leaflet-popup-content-wrapper {
+    padding: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.presa-popup .leaflet-popup-content {
+    margin: 0;
+    width: 320px !important;
+    line-height: 1.5;
+}
+
+.presa-popup .leaflet-popup-tip {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.presa-popup-header {
+    background: white;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--color-border);
+    position: relative;
+}
+
+.presa-popup-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--color-gobmx-guinda) 0%, var(--color-gobmx-verde) 100%);
+}
+
+.presa-popup-title {
+    margin: 0;
+    font-family: var(--font-family-headings);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    line-height: 1.3;
+}
+
+.presa-popup-subtitle {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.75rem;
+    color: var(--color-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.presa-popup-body {
+    padding: 20px 24px;
+    background: #ffffff;
+}
+
+.presa-popup-row {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    gap: 16px;
+}
+
+.presa-popup-row:last-child {
+    margin-bottom: 0;
+}
+
+.presa-popup-icon {
+    color: var(--color-gobmx-verde);
+    font-size: 1.2rem;
+    margin-top: -2px;
+    width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.presa-popup-data {
+    flex: 1;
+}
+
+.presa-popup-label {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+    font-weight: 700;
+}
+
+.presa-popup-value {
+    display: block;
+    font-size: 0.95rem;
+    color: var(--color-text-primary);
+    font-weight: 500;
+}
+
+.presa-popup-footer {
+    padding: 16px 24px;
+    background: var(--color-surface-soft);
+    border-top: 1px solid var(--color-border);
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+}
+
+.presa-popup-footer i {
+    color: var(--color-gobmx-guinda);
+    margin-right: 6px;
+}
+
+/* ===== ICONO PERSONALIZADO DE PRESAS ===== */
+.custom-presa-icon {
+    background: transparent !important;
+    border: none !important;
+}
+
+.custom-presa-icon img {
+    display: block;
+    transition: transform 0.2s ease;
+}
+
+.custom-presa-icon:hover img {
+    transform: scale(1.1);
 }

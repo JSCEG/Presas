@@ -1916,6 +1916,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const mapConfigurations = {
+        'PRESAS': (typeof PRESAS_MAPS !== 'undefined' ? PRESAS_MAPS : []),
         'PLADESE': (typeof PLADESE_MAPS !== 'undefined' ? PLADESE_MAPS : []),
         'PLADESHI': (typeof PLADESHI_MAPS !== 'undefined' ? PLADESHI_MAPS : []),
         'PLATEASE': (typeof PLATEASE_MAPS !== 'undefined' ? PLATEASE_MAPS : []),
@@ -2483,6 +2484,9 @@ document.addEventListener('DOMContentLoaded', function () {
     async function loadGeoJSON(url, options) {
         const showPreloader = !(options && options.silent);
         const type = options && options.type || 'regions';
+        const clearLayers = options && options.clearLayers !== undefined ? options.clearLayers : true;
+
+        console.log('🟢 loadGeoJSON iniciando:', {type, url, clearLayers});
 
         if (showPreloader) {
             togglePreloader(true);
@@ -2490,11 +2494,46 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const response = await fetch(url);
             const data = await response.json();
+            
+            console.log('🟢 GeoJSON cargado tipo', type, ':', data.features ? data.features.length : 0, 'features');
 
             let styleFunction;
             let onEachFeatureFunction;
 
-            if (type === 'states') {
+            if (type === 'ramsar') {
+                // Estilo para sitios Ramsar (humedales)
+                styleFunction = function (feature) {
+                    return {
+                        fillColor: '#4CAF50',
+                        fill: true,
+                        weight: 2,
+                        opacity: 0.8,
+                        color: '#2E7D32',
+                        fillOpacity: 0.4,
+                        pane: 'overlayPane'
+                    };
+                };
+                onEachFeatureFunction = function (feature, layer) {
+                    const props = feature.properties || {};
+                    const nombre = props.name || props.nombre || props.NOMBRE || 'Sitio Ramsar';
+                    layer.bindPopup(`<strong>Sitio Ramsar:</strong> ${nombre}`);
+                };
+            } else if (type === 'usumacinta') {
+                // Estilo para río Usumacinta
+                styleFunction = function (feature) {
+                    return {
+                        color: '#0288D1',
+                        weight: 3,
+                        opacity: 0.7,
+                        pane: 'overlayPane'
+                    };
+                };
+                onEachFeatureFunction = function (feature, layer) {
+                    const props = feature.properties || {};
+                    const nombre = props.name || props.nombre || props.NOMBRE || 'Río Usumacinta';
+                    layer.bindPopup(`<strong>Río:</strong> ${nombre}`);
+                };
+            } else if (type === 'states') {
                 styleFunction = function (feature) {
                     return {
                         fillColor: '#E0E0E0',
@@ -3018,8 +3057,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 onEachFeature: onEachFeatureFunction
             });
 
-            instrumentLayerGroup.clearLayers(); // Clear before adding new layers
+            if (clearLayers) {
+                console.log('🟢 Limpiando capas anteriores...');
+                instrumentLayerGroup.clearLayers(); // Clear before adding new layers
+            } else {
+                console.log('🟢 NO limpiando capas anteriores (clearLayers=false)');
+            }
             instrumentLayerGroup.addLayer(geoJsonLayer);
+            console.log('🟢 Capa agregada. Total capas en instrumentLayerGroup:', instrumentLayerGroup.getLayers().length);
 
             // Etiquetas de gerencias - la información está en la leyenda
             if (type === 'regions') {
@@ -3160,6 +3205,130 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         } catch (error) {
             console.error('Error cargando GeoJSON de líneas:', error);
+        } finally {
+            if (showPreloader) {
+                togglePreloader(false);
+            }
+        }
+    }
+
+    // Función específica para cargar presas con icono personalizado
+    async function loadPresasGeoJSON(url, options) {
+        const showPreloader = !(options && options.silent);
+
+        console.log('🔵 loadPresasGeoJSON iniciando:', url);
+
+        if (showPreloader) {
+            togglePreloader(true);
+        }
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+
+            console.log('🔵 Presas GeoJSON cargado:', data.features ? data.features.length : 0, 'features');
+
+            // Limpiar capas anteriores
+            instrumentLayerGroup.clearLayers();
+
+            // Crear icono personalizado con HTML para asegurar visibilidad
+            const createPresaIcon = function () {
+                return L.divIcon({
+                    className: 'custom-presa-icon',
+                    html: `
+                        <div style="position: relative; width: 40px; height: 40px;">
+                            <img src="https://cdn.sassoapps.com/iconos/represa.png" 
+                                 style="width: 40px; height: 40px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                            <div style="display: none; width: 32px; height: 32px; background: var(--color-gobmx-guinda); 
+                                        border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(155,34,71,0.4);
+                                        position: absolute; top: 4px; left: 4px;">
+                                <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                                             font-size: 20px; color: white;">💧</span>
+                            </div>
+                        </div>
+                    `,
+                    iconSize: [40, 40],
+                    iconAnchor: [20, 40],
+                    popupAnchor: [0, -40]
+                });
+            };
+
+            // Crear capa GeoJSON con iconos personalizados
+            const presasLayer = L.geoJSON(data, {
+                pointToLayer: function (feature, latlng) {
+                    return L.marker(latlng, {
+                        icon: createPresaIcon(),
+                        pane: 'electricityMarkersPane'
+                    });
+                },
+                onEachFeature: function (feature, layer) {
+                    const props = feature.properties || {};
+
+                    // El nombre está en el campo "id"
+                    const nombrePresa = props.id || props.nombre || props.NOMBRE || props.name || 'Presa';
+                    const numero = props.no || props.NO || '';
+                    const latitud = props.lat ? props.lat.toFixed(6) : '';
+                    const longitud = props.lon ? props.lon.toFixed(6) : '';
+
+                    // Crear popup con diseño mejorado
+                    const popupContent = `
+                        <div class="presa-popup-container">
+                            <div class="presa-popup-header">
+                                <h3 class="presa-popup-title">${nombrePresa}</h3>
+                                ${numero ? `<span class="presa-popup-subtitle">No. ${numero}</span>` : ''}
+                            </div>
+                            <div class="presa-popup-body">
+                                ${props.estado || props.ESTADO ? `
+                                    <div class="presa-popup-row">
+                                        <i class="bi bi-building presa-popup-icon"></i>
+                                        <div class="presa-popup-data">
+                                            <span class="presa-popup-label">Estado</span>
+                                            <span class="presa-popup-value">${props.estado || props.ESTADO}</span>
+                                        </div>
+                                    </div>
+                                ` : ''}
+                                ${props.capacidad || props.CAPACIDAD ? `
+                                    <div class="presa-popup-row">
+                                        <i class="bi bi-lightning-charge-fill presa-popup-icon"></i>
+                                        <div class="presa-popup-data">
+                                            <span class="presa-popup-label">Capacidad</span>
+                                            <span class="presa-popup-value">${props.capacidad || props.CAPACIDAD} MW</span>
+                                        </div>
+                                    </div>
+                                ` : ''}
+                                ${latitud && longitud ? `
+                                    <div class="presa-popup-row">
+                                        <i class="bi bi-geo-alt-fill presa-popup-icon"></i>
+                                        <div class="presa-popup-data">
+                                            <span class="presa-popup-label">Coordenadas</span>
+                                            <span class="presa-popup-value" style="font-family: monospace; font-size: 0.85rem;">${latitud}, ${longitud}</span>
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            ${props.observaciones || props.OBSERVACIONES ? `
+                                <div class="presa-popup-footer">
+                                    <i class="bi bi-info-circle-fill"></i> ${props.observaciones || props.OBSERVACIONES}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+
+                    layer.bindPopup(popupContent, {
+                        maxWidth: 350,
+                        className: 'presa-popup'
+                    });
+                }
+            });
+
+            instrumentLayerGroup.addLayer(presasLayer);
+
+            console.log(`✅ Presas agregadas a instrumentLayerGroup:`, data.features ? data.features.length : 0, 'presas');
+            console.log('🔵 Capas actuales en instrumentLayerGroup:', instrumentLayerGroup.getLayers().length);
+
+        } catch (error) {
+            console.error('❌ Error cargando presas:', error);
         } finally {
             if (showPreloader) {
                 togglePreloader(false);
@@ -7271,7 +7440,30 @@ document.addEventListener('DOMContentLoaded', function () {
                         if (mapConfig.name === 'Red nacional de gasoductos en 2024') {
                             addGasLegend();
                         }
-                        await loadGeoJSON(mapConfig.geojsonUrl, { type: mapConfig.geojsonUrlType });
+                        if (mapConfig.geojsonUrlType === 'presas') {
+                            console.log('🟡 Cargando mapa de PRESAS');
+                            await loadPresasGeoJSON(mapConfig.geojsonUrl, { silent: false });
+                            
+                            // Cargar capas adicionales si existen (Ramsar, Usumacinta, etc.)
+                            if (mapConfig.additionalLayers && Array.isArray(mapConfig.additionalLayers)) {
+                                console.log('🟡 Cargando', mapConfig.additionalLayers.length, 'capas adicionales');
+                                for (const additionalLayer of mapConfig.additionalLayers) {
+                                    if (additionalLayer.url && additionalLayer.type) {
+                                        console.log('🟡 Cargando capa adicional:', additionalLayer.type);
+                                        await loadGeoJSON(additionalLayer.url, { 
+                                            type: additionalLayer.type, 
+                                            silent: true,
+                                            clearLayers: false // No limpiar capas anteriores
+                                        });
+                                    }
+                                }
+                                console.log('🟡 Todas las capas adicionales cargadas');
+                            } else {
+                                console.log('🟡 No hay capas adicionales para cargar');
+                            }
+                        } else {
+                            await loadGeoJSON(mapConfig.geojsonUrl, { type: mapConfig.geojsonUrlType });
+                        }
                     }
                     if (mapConfig.connectionsGeojsonUrl) {
                         const showPreloader = !mapConfig.geojsonUrl;

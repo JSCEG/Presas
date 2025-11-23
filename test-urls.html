@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test URLs GeoJSON</title>
+</head>
+<body>
+    <h1>Probando URLs de GeoJSON</h1>
+    <div id="results"></div>
+
+    <script>
+        const urls = [
+            {
+                name: 'Presas',
+                url: 'https://cdn.sassoapps.com/Mapas/Electricidad/presas.geojson'
+            },
+            {
+                name: 'Ramsar',
+                url: 'https://cdn.sassoapps.com/Gabvy/ramsar.geojson'
+            },
+            {
+                name: 'Usumacinta',
+                url: 'https://cdn.sassoapps.com/Mapas/Electricidad/usumacinta.geojson'
+            }
+        ];
+
+        const resultsDiv = document.getElementById('results');
+
+        async function testURL(name, url) {
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                let html = `<h3>✅ ${name} - OK</h3>`;
+                html += `<p>URL: ${url}</p>`;
+                html += `<p>Type: ${data.type}</p>`;
+                html += `<p>Features: ${data.features ? data.features.length : 0}</p>`;
+                
+                if (data.features && data.features.length > 0) {
+                    html += `<p>First feature properties:</p>`;
+                    html += `<pre>${JSON.stringify(data.features[0].properties, null, 2)}</pre>`;
+                    html += `<p>Geometry type: ${data.features[0].geometry.type}</p>`;
+                }
+                
+                resultsDiv.innerHTML += html + '<hr>';
+            } catch (error) {
+                resultsDiv.innerHTML += `<h3>❌ ${name} - ERROR</h3><p>${error.message}</p><hr>`;
+            }
+        }
+
+        urls.forEach(item => testURL(item.name, item.url));
+    </script>
+</body>
+</html>

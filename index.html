@@ -3,11 +3,13 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Mapa Din&aacute;mico SNIEn</title>
+    <title>Mapas Din&aacute;micos de Presas - SNIEn</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Merriweather:wght@400;700&display=swap"
+        rel="stylesheet" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdn.maptiler.com/maptiler-sdk-js/v3.6.1/maptiler-sdk.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
@@ -300,18 +302,18 @@
             <div class="welcome-header">
                 <img src="img/logo_sener.png" alt="SENER" class="welcome-logo-sener">
                 <div class="welcome-title-container">
-                    <h1 class="welcome-title">Automatización de Mapas SNIEn</h1>
-                    <p class="welcome-subtitle">Sistema Nacional de Información Energética</p>
+                    <h1 class="welcome-title">Mapas Dinámicos de Presas</h1>
+                    <p class="welcome-subtitle">Subsecretaría de Planeación y Transición Energética</p>
                 </div>
                 <img src="img/snien.png" alt="SNIEn" class="welcome-logo-snien">
             </div>
 
             <div class="welcome-instructions">
                 <div class="instruction-item">
-                    <div class="instruction-icon"><i class="bi bi-hand-index-thumb"></i></div>
+                    <div class="instruction-icon"><i class="bi bi-droplet-fill"></i></div>
                     <div class="instruction-content">
-                        <h3>Seleccione un Instrumento</h3>
-                        <p>Elija entre PLADESE, PLADESHI, PLATEASE, PROSENER u otros.</p>
+                        <h3>Infraestructura Hidroeléctrica</h3>
+                        <p>Visualice las presas y su información del Sistema Nacional de Información Energética.</p>
                     </div>
                 </div>
 
@@ -346,7 +348,7 @@
             </button>
 
             <div class="welcome-footer">
-                <p>Secretaría de Energía - Sistema Nacional de Información Energética</p>
+                <p>Subsecretaría de Planeación y Transición Energética - SENER</p>
             </div>
         </div>
     </div>
@@ -360,8 +362,9 @@
                         class="brand-logo brand-logo--snien" />
                 </div>
                 <div class="brand-copy">
-                    <span class="brand-eyebrow">Secretar&iacute;a de Energ&iacute;a</span>
-                    <span class="brand-title">Mapa din&aacute;mico SNIEn</span>
+                    <span class="brand-eyebrow">Subsecretar&iacute;a de Planeaci&oacute;n y Transici&oacute;n
+                        Energ&eacute;tica</span>
+                    <span class="brand-title">Mapas Din&aacute;micos de Presas</span>
                 </div>
             </div>
             <div class="header-meta">
@@ -377,17 +380,9 @@
                 <div class="map-card">
                     <div class="card-toolbar">
                         <div class="toolbar-group">
-                            <label for="instrument-select">Instrumentos</label>
+                            <label for="instrument-select">Instrumento</label>
                             <select id="instrument-select" class="control">
-                                <option value="">Seleccione un instrumento</option>
-                                <option value="PLADESE">PLADESE</option>
-                                <option value="PLADESHI">PLADESHI</option>
-                                <option value="PLATEASE">PLATEASE</option>
-                                <option value="PROSENER">PROSENER</option>
-                                <option value="ELECTRICIDAD">ELECTRICIDAD</option>
-                                <option value="GAS NATURAL">GAS NATURAL</option>
-                                <option value="GAS L.P.">GAS L.P.</option>
-                                <option value="PETROLIFEROS">PETROLIFEROS</option>
+                                <option value="PRESAS">PRESAS</option>
                             </select>
                         </div>
                         <div class="toolbar-group">
@@ -442,10 +437,11 @@
                     </div>
                     <div class="map-content-wrapper">
                         <h2 id="map-title-display" class="map-title-text">
-                            Mapa SNIEn - Sistema Nacional de Informaci&oacute;n Energ&eacute;tica
+                            Mapa de Presas - Subsecretar&iacute;a de Planeaci&oacute;n y Transici&oacute;n
+                            Energ&eacute;tica
                         </h2>
 
-                        <div id="map" class="map-view" role="region" aria-label="Mapa interactivo del SNIEn">
+                        <div id="map" class="map-view" role="region" aria-label="Mapa interactivo de Presas">
                             <div id="selected-region-banner" class="selected-region-banner" style="display: none;"
                                 aria-live="polite">
                                 <span id="selected-region-text"></span>
@@ -515,293 +511,6 @@
                             </div>
                         </div>
 
-                        <!-- Panel de Filtros y Estadísticas (solo para electricidad) -->
-                        <div id="electricity-filters-panel" class="filters-panel" style="display: none;">
-                            <div class="filters-header">
-                                <h3>📊 Estadísticas y Filtros</h3>
-                                <button id="reset-filters-btn" class="btn-secondary btn-small">
-                                    <i class="bi bi-arrow-counterclockwise"></i> Ver Todos
-                                </button>
-                            </div>
-
-                            <!-- Totales Generales -->
-                            <div class="totals-section">
-                                <div class="total-card total-general">
-                                    <div class="total-icon">⚡</div>
-                                    <div class="total-content">
-                                        <div class="total-label">Capacidad Total</div>
-                                        <div class="total-value" id="total-capacity">0 MW</div>
-                                    </div>
-                                </div>
-                                <div class="total-card total-general">
-                                    <div class="total-icon">🔋</div>
-                                    <div class="total-content">
-                                        <div class="total-label">Generación Anual</div>
-                                        <div class="total-value" id="total-generation">0 GWh</div>
-                                    </div>
-                                </div>
-                                <div class="total-card total-general">
-                                    <div class="total-icon">📍</div>
-                                    <div class="total-content">
-                                        <div class="total-label">Permisos</div>
-                                        <div class="total-value" id="total-permits">0</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Tabs para GCR y Tecnología -->
-                            <div class="filters-tabs">
-                                <button class="filter-tab active" data-tab="state">Por Estado</button>
-                                <button class="filter-tab" data-tab="gcr">Por Gerencia</button>
-                                <button class="filter-tab" data-tab="tech">Por Tecnología</button>
-                                <button class="filter-tab" data-tab="matrix">Vista Detallada</button>
-                            </div>
-
-                            <!-- Contenido de Tabs -->
-                            <div class="filters-content">
-                                <!-- Filtros por Estado (Entidad Federativa) -->
-                                <div id="state-filters" class="filter-tab-content active">
-                                    <div id="state-cards" class="filter-cards"></div>
-                                </div>
-
-                                <!-- Filtros por GCR (Gerencia de Control Regional) -->
-                                <div id="gcr-filters" class="filter-tab-content">
-                                    <div id="gcr-cards" class="filter-cards"></div>
-                                </div>
-
-                                <!-- Filtros por Tecnología -->
-                                <div id="tech-filters" class="filter-tab-content">
-                                    <div id="tech-cards" class="filter-cards"></div>
-                                </div>
-
-                                <!-- Vista Detallada GCR x Tecnología -->
-                                <div id="matrix-filters" class="filter-tab-content">
-                                    <div id="matrix-view" class="matrix-view"></div>
-                                </div>
-                            </div>
-
-                            <!-- Gráficos de Electricidad -->
-                            <div class="charts-section">
-                                <h4 class="charts-title"><i class="bi bi-bar-chart-fill"></i> Análisis Visual</h4>
-                                <div class="charts-grid">
-                                    <div class="chart-container">
-                                        <canvas id="electricity-tech-chart"></canvas>
-                                    </div>
-                                    <div class="chart-container">
-                                        <canvas id="electricity-states-chart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Panel de Filtros para Petrolíferos -->
-                        <div id="petroliferos-filters-panel" class="filters-panel" style="display: none;">
-                            <div class="filters-header">
-                                <h3><i class="bi bi-fuel-pump"></i> Filtros de Permisos de Petrolíferos</h3>
-                                <button type="button" id="reset-petroliferos-filters-btn"
-                                    class="btn-secondary btn-small">
-                                    <i class="bi bi-arrow-counterclockwise"></i> Resetear Filtros
-                                </button>
-                            </div>
-
-                            <!-- Totales Generales -->
-                            <div class="totals-section">
-                                <div class="total-card total-general">
-                                    <div class="total-icon">⛽</div>
-                                    <div class="total-content">
-                                        <div class="total-label">Capacidad Total</div>
-                                        <div class="total-value" id="total-petroliferos-capacity">0 Barriles</div>
-                                    </div>
-                                </div>
-                                <div class="total-card total-general">
-                                    <div class="total-icon">💰</div>
-                                    <div class="total-content">
-                                        <div class="total-label">Inversión Total</div>
-                                        <div class="total-value" id="total-petroliferos-investment">$0</div>
-                                    </div>
-                                </div>
-                                <div class="total-card total-general">
-                                    <div class="total-icon">📍</div>
-                                    <div class="total-content">
-                                        <div class="total-label">Permisos</div>
-                                        <div class="total-value" id="total-petroliferos-permits">0</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Tabs para Estado, Tipo de Permiso y Marca -->
-                            <div class="filters-tabs">
-                                <button class="filter-tab-petroliferos active" data-tab="state">Por Estado</button>
-                                <button class="filter-tab-petroliferos" data-tab="type">Por Tipo de Permiso</button>
-                                <button class="filter-tab-petroliferos" data-tab="brand">Por Marca</button>
-                            </div>
-
-                            <!-- Contenido de Tabs -->
-                            <div class="filters-content">
-                                <!-- Filtros por Estado (Entidad Federativa) -->
-                                <div id="petroliferos-state-filters" class="filter-tab-content active">
-                                    <div id="petroliferos-state-cards" class="filter-cards"></div>
-                                </div>
-
-                                <!-- Filtros por Tipo de Permiso -->
-                                <div id="petroliferos-type-filters" class="filter-tab-content">
-                                    <div id="petroliferos-type-cards" class="filter-cards"></div>
-                                </div>
-
-                                <!-- Filtros por Marca -->
-                                <div id="petroliferos-brand-filters" class="filter-tab-content">
-                                    <div id="petroliferos-brand-cards" class="filter-cards"></div>
-                                </div>
-                            </div>
-
-                            <!-- Gráficos de Petrolíferos -->
-                            <div class="charts-section">
-                                <h4 class="charts-title"><i class="bi bi-bar-chart-fill"></i> Análisis Visual</h4>
-                                <div class="charts-grid">
-                                    <div class="chart-container">
-                                        <canvas id="petroliferos-brand-chart"></canvas>
-                                    </div>
-                                    <div class="chart-container">
-                                        <canvas id="petroliferos-states-chart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Panel de Filtros para Gas LP -->
-                        <div id="gaslp-filters-panel" class="filters-panel" style="display: none;">
-                            <div class="filters-header">
-                                <h3><i class="bi bi-droplet-fill"></i> Filtros de Permisos de Gas L.P.</h3>
-                                <button type="button" id="reset-gaslp-filters-btn" class="btn-secondary btn-small">
-                                    <i class="bi bi-arrow-counterclockwise"></i> Resetear Filtros
-                                </button>
-                            </div>
-
-                            <!-- Totales Generales -->
-                            <div class="totals-section">
-                                <div class="total-card total-general">
-                                    <div class="total-icon">💧</div>
-                                    <div class="total-content">
-                                        <div class="total-label">Capacidad Total</div>
-                                        <div class="total-value" id="total-gaslp-capacity">0 Litros</div>
-                                    </div>
-                                </div>
-                                <div class="total-card total-general">
-                                    <div class="total-icon">🛢️</div>
-                                    <div class="total-content">
-                                        <div class="total-label">Capacidad Tanques</div>
-                                        <div class="total-value" id="total-gaslp-investment">0 L</div>
-                                    </div>
-                                </div>
-                                <div class="total-card total-general">
-                                    <div class="total-icon">📍</div>
-                                    <div class="total-content">
-                                        <div class="total-label">Permisos</div>
-                                        <div class="total-value" id="total-gaslp-permits">0</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Tabs para Estado y Tipo de Permiso -->
-                            <div class="filters-tabs">
-                                <button class="filter-tab-gaslp active" data-tab="state">Por Estado</button>
-                                <button class="filter-tab-gaslp" data-tab="type">Por Tipo de Permiso</button>
-                            </div>
-
-                            <!-- Contenido de Tabs -->
-                            <div class="filters-content">
-                                <!-- Filtros por Estado (Entidad Federativa) -->
-                                <div id="gaslp-state-filters" class="filter-tab-content active">
-                                    <div id="gaslp-state-cards" class="filter-cards"></div>
-                                </div>
-
-                                <!-- Filtros por Tipo de Permiso -->
-                                <div id="gaslp-type-filters" class="filter-tab-content">
-                                    <div id="gaslp-type-cards" class="filter-cards"></div>
-                                </div>
-                            </div>
-
-                            <!-- Gráficos de Gas LP -->
-                            <div class="charts-section">
-                                <h4 class="charts-title"><i class="bi bi-bar-chart-fill"></i> Análisis Visual</h4>
-                                <div class="charts-grid">
-                                    <div class="chart-container">
-                                        <canvas id="gaslp-type-chart"></canvas>
-                                    </div>
-                                    <div class="chart-container">
-                                        <canvas id="gaslp-states-chart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Panel de Filtros para Gas Natural -->
-                        <div id="gasnatural-filters-panel" class="filters-panel" style="display: none;">
-                            <div class="filters-header">
-                                <h3><i class="bi bi-fire"></i> Filtros de Permisos de Gas Natural</h3>
-                                <button type="button" id="reset-gasnatural-filters-btn" class="btn-secondary btn-small">
-                                    <i class="bi bi-arrow-counterclockwise"></i> Resetear Filtros
-                                </button>
-                            </div>
-
-                            <!-- Totales Generales -->
-                            <div class="totals-section">
-                                <div class="total-card total-general">
-                                    <div class="total-icon">💰</div>
-                                    <div class="total-content">
-                                        <div class="total-label">Inversión Total</div>
-                                        <div class="total-value" id="total-gasnatural-investment">$0</div>
-                                    </div>
-                                </div>
-                                <div class="total-card total-general">
-                                    <div class="total-icon">⚙️</div>
-                                    <div class="total-content">
-                                        <div class="total-label">Compresores</div>
-                                        <div class="total-value" id="total-gasnatural-compressors">0</div>
-                                    </div>
-                                </div>
-                                <div class="total-card total-general">
-                                    <div class="total-icon">📍</div>
-                                    <div class="total-content">
-                                        <div class="total-label">Permisos</div>
-                                        <div class="total-value" id="total-gasnatural-permits">0</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Tabs para Estado y Tipo de Permiso -->
-                            <div class="filters-tabs">
-                                <button class="filter-tab-gasnatural active" data-tab="state">Por Estado</button>
-                                <button class="filter-tab-gasnatural" data-tab="type">Por Tipo de Permiso</button>
-                            </div>
-
-                            <!-- Contenido de Tabs -->
-                            <div class="filters-content">
-                                <!-- Filtros por Estado (Entidad Federativa) -->
-                                <div id="gasnatural-state-filters" class="filter-tab-content active">
-                                    <div id="gasnatural-state-cards" class="filter-cards"></div>
-                                </div>
-
-                                <!-- Filtros por Tipo de Permiso -->
-                                <div id="gasnatural-type-filters" class="filter-tab-content">
-                                    <div id="gasnatural-type-cards" class="filter-cards"></div>
-                                </div>
-                            </div>
-
-                            <!-- Gráficos de Gas Natural -->
-                            <div class="charts-section">
-                                <h4 class="charts-title"><i class="bi bi-bar-chart-fill"></i> Análisis Visual</h4>
-                                <div class="charts-grid">
-                                    <div class="chart-container">
-                                        <canvas id="gasnatural-type-chart"></canvas>
-                                    </div>
-                                    <div class="chart-container">
-                                        <canvas id="gasnatural-states-chart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         <div id="map-description" class="map-description">
                             <h4 id="map-description-title"></h4>
                             <p id="map-description-content"></p>
@@ -821,9 +530,9 @@
                 <article class="info-panel">
                     <h2>Prop&oacute;sito</h2>
                     <p>
-                        Este geovisor permite visualizar capas del Sistema Nacional de Informaci&oacute;n
-                        Energ&eacute;tica con
-                        mapas base personalizados MapTiler y datos abiertos que se actualizan desde Google Sheets.
+                        Este geovisor permite visualizar la infraestructura hidroel&eacute;ctrica de M&eacute;xico,
+                        incluyendo presas y centrales hidroel&eacute;ctricas, con mapas base personalizados MapTiler
+                        y datos actualizados desde Google Sheets.
                     </p>
                 </article>
                 <article class="info-panel">
@@ -848,7 +557,7 @@
                 <img src="img/logo_gob.png" alt="Gobierno de M&eacute;xico" />
                 <img src="img/logo_sener.png" alt="Secretar&iacute;a de Energ&iacute;a" />
             </div>
-            <p>Sistema Nacional de Informaci&oacute;n Energ&eacute;tica &middot; Secretar&iacute;a de Energ&iacute;a</p>
+            <p>Subsecretar&iacute;a de Planeaci&oacute;n y Transici&oacute;n Energ&eacute;tica &middot; SENER</p>
         </div>
     </footer>
 
@@ -1138,18 +847,24 @@
 
     <!-- Modular JavaScript files -->
     <script src="js/notification-system.js"></script>
-    <script src="js/provincias-petroleras.js"></script>
-    <script src="js/pladeshi-maps.js"></script>
-    <script src="js/pladese-maps.js"></script>
-    <script src="js/platease-maps.js"></script>
-    <script src="js/prosener-maps.js"></script>
-    <script src="js/electricidad-maps.js"></script>
-    <script src="js/gas-natural-maps.js"></script>
-    <script src="js/gas-lp-maps.js"></script>
-    <script src="js/petroliferos-maps.js"></script>
+    <script src="js/presas-maps.js"></script>
     <script src="js/map-config.js"></script>
     <script src="js/fullscreen-toolbar.js"></script>
     <script src="js/simple-export.js"></script>
+
+    <!-- Auto-select PRESAS on load -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const instrumentSelect = document.getElementById('instrument-select');
+            if (instrumentSelect) {
+                // Set PRESAS as default
+                instrumentSelect.value = 'PRESAS';
+                // Trigger change event to load maps
+                const event = new Event('change', { bubbles: true });
+                instrumentSelect.dispatchEvent(event);
+            }
+        });
+    </script>
 
 </body>
 
