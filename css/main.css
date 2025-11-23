@@ -2890,6 +2890,15 @@ a:hover {
     line-height: 1.5;
 }
 
+/* Ajustar posición del popup para que no se encime con el marcador */
+.leaflet-popup {
+    margin-bottom: 20px !important;
+}
+
+.leaflet-popup-content-wrapper {
+    pointer-events: auto;
+}
+
 .presa-popup .leaflet-popup-tip {
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
 }
