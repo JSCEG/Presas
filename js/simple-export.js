@@ -152,6 +152,24 @@
             };
         }
 
+        // Función helper para actualizar AMBOS overlays de progreso
+        function updateAllProgressOverlays(message, percentage) {
+            const overlays = [
+                document.getElementById('export-progress-overlay'),
+                document.getElementById('map-export-progress-overlay')
+            ];
+            
+            overlays.forEach(overlay => {
+                if (!overlay) return;
+                const msg = overlay.querySelector('.progress-message');
+                const pct = overlay.querySelector('.progress-percentage');
+                const fill = overlay.querySelector('.progress-fill');
+                if (msg) msg.textContent = message;
+                if (pct) pct.textContent = percentage;
+                if (fill) fill.style.width = percentage;
+            });
+        }
+        
         // Exportar mapa optimizado para Word (tamaño carta, 300 DPI)
         async function exportMapForWord() {
             // Verificar si MapTiler está activo
@@ -160,17 +178,30 @@
                 return;
             }
 
-            // Mostrar overlay de progreso
+            // Mostrar AMBOS overlays de progreso (principal y del mapa)
             const progressOverlay = document.getElementById('export-progress-overlay');
+            const mapProgressOverlay = document.getElementById('map-export-progress-overlay');
+            
             const progressMessage = progressOverlay ? progressOverlay.querySelector('.progress-message') : null;
             const progressPercentage = progressOverlay ? progressOverlay.querySelector('.progress-percentage') : null;
             const progressFill = progressOverlay ? progressOverlay.querySelector('.progress-fill') : null;
+            
+            const mapProgressMessage = mapProgressOverlay ? mapProgressOverlay.querySelector('.progress-message') : null;
+            const mapProgressPercentage = mapProgressOverlay ? mapProgressOverlay.querySelector('.progress-percentage') : null;
+            const mapProgressFill = mapProgressOverlay ? mapProgressOverlay.querySelector('.progress-fill') : null;
 
             if (progressOverlay) {
                 progressOverlay.style.display = 'flex';
                 if (progressMessage) progressMessage.textContent = 'Optimizando para Word...';
                 if (progressPercentage) progressPercentage.textContent = '10%';
                 if (progressFill) progressFill.style.width = '10%';
+            }
+            
+            if (mapProgressOverlay) {
+                mapProgressOverlay.style.display = 'flex';
+                if (mapProgressMessage) mapProgressMessage.textContent = 'Optimizando para Word...';
+                if (mapProgressPercentage) mapProgressPercentage.textContent = '10%';
+                if (mapProgressFill) mapProgressFill.style.width = '10%';
             }
 
             // Ocultar todos los controles
@@ -223,9 +254,7 @@
                     cardFooter.style.display = 'none';
                 }
 
-                if (progressMessage) progressMessage.textContent = 'Capturando imagen optimizada...';
-                if (progressPercentage) progressPercentage.textContent = '50%';
-                if (progressFill) progressFill.style.width = '50%';
+                updateAllProgressOverlays('Capturando imagen optimizada...', '50%');
 
                 console.log('🔄 Capturando imagen optimizada para Word (300 DPI, Alta Calidad)...');
 
@@ -280,9 +309,7 @@
                     }
                 });
 
-                if (progressMessage) progressMessage.textContent = 'Descargando imagen...';
-                if (progressPercentage) progressPercentage.textContent = '90%';
-                if (progressFill) progressFill.style.width = '90%';
+                updateAllProgressOverlays('Descargando imagen...', '90%');
 
                 // Descargar imagen con identificador especial para Word
                 const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
@@ -296,8 +323,7 @@
                 link.click();
                 document.body.removeChild(link);
 
-                if (progressPercentage) progressPercentage.textContent = '100%';
-                if (progressFill) progressFill.style.width = '100%';
+                updateAllProgressOverlays('¡Exportación completada!', '100%');
 
                 console.log('✅ Exportación para Word completada:', filename);
                 console.log(`📐 Dimensiones optimizadas: ${targetWidth}x${targetHeight}px (Escala 6x para 300 DPI)`);
@@ -310,9 +336,10 @@
                     );
                 }
 
-                // Cerrar overlay y restaurar controles
+                // Cerrar AMBOS overlays y restaurar controles
                 setTimeout(() => {
                     if (progressOverlay) progressOverlay.style.display = 'none';
+                    if (mapProgressOverlay) mapProgressOverlay.style.display = 'none';
                     if (layersControl && layersControlWasVisible) layersControl.style.display = '';
                     if (fullscreenControls && fullscreenControlsWasVisible) fullscreenControls.style.display = '';
                     if (attribution && attributionWasVisible) attribution.style.display = '';
@@ -362,18 +389,14 @@
                 return;
             }
 
-            // Mostrar overlay de progreso
+            // Mostrar AMBOS overlays de progreso
             const progressOverlay = document.getElementById('export-progress-overlay');
-            const progressMessage = progressOverlay ? progressOverlay.querySelector('.progress-message') : null;
-            const progressPercentage = progressOverlay ? progressOverlay.querySelector('.progress-percentage') : null;
-            const progressFill = progressOverlay ? progressOverlay.querySelector('.progress-fill') : null;
+            const mapProgressOverlay = document.getElementById('map-export-progress-overlay');
 
-            if (progressOverlay) {
-                progressOverlay.style.display = 'flex';
-                if (progressMessage) progressMessage.textContent = 'Esperando carga de tiles...';
-                if (progressPercentage) progressPercentage.textContent = '10%';
-                if (progressFill) progressFill.style.width = '10%';
-            }
+            if (progressOverlay) progressOverlay.style.display = 'flex';
+            if (mapProgressOverlay) mapProgressOverlay.style.display = 'flex';
+            
+            updateAllProgressOverlays('Esperando carga de tiles...', '10%');
 
             // Ocultar control de capas temporalmente
             const layersControl = document.querySelector('.leaflet-control-layers');
@@ -428,9 +451,7 @@
                     cardFooter.style.display = 'none';
                 }
 
-                if (progressMessage) progressMessage.textContent = 'Capturando imagen del mapa...';
-                if (progressPercentage) progressPercentage.textContent = '50%';
-                if (progressFill) progressFill.style.width = '50%';
+                updateAllProgressOverlays('Capturando imagen del mapa...', '50%');
 
                 console.log('🔄 Capturando imagen con dom-to-image (Calidad 4x - Alta Resolución)...');
 
@@ -484,9 +505,7 @@
                     }
                 });
 
-                if (progressMessage) progressMessage.textContent = 'Descargando imagen...';
-                if (progressPercentage) progressPercentage.textContent = '90%';
-                if (progressFill) progressFill.style.width = '90%';
+                updateAllProgressOverlays('Descargando imagen...', '90%');
 
                 // Descargar imagen
                 const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
@@ -500,8 +519,7 @@
                 link.click();
                 document.body.removeChild(link);
 
-                if (progressPercentage) progressPercentage.textContent = '100%';
-                if (progressFill) progressFill.style.width = '100%';
+                updateAllProgressOverlays('¡Exportación completada!', '100%');
 
                 const finalWidth = mapContainer.offsetWidth * scale;
                 const finalHeight = mapContainer.offsetHeight * scale;
@@ -520,6 +538,7 @@
                 // Cerrar overlay después de un momento
                 setTimeout(() => {
                     if (progressOverlay) progressOverlay.style.display = 'none';
+                    if (mapProgressOverlay) mapProgressOverlay.style.display = 'none';
 
                     // Restaurar control de capas
                     if (layersControl && layersControlWasVisible) {

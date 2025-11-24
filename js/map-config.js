@@ -1049,6 +1049,9 @@ document.addEventListener('DOMContentLoaded', function () {
     let currentPresaSelected = null; // Presa actualmente seleccionada
     let currentSearchRadius = 10000; // Radio de búsqueda en metros (default 10km)
     let radiusControl = null; // Control del slider de radio
+    
+    // EXPONER currentSearchRadius como variable global para que window.analyzePresaClick pueda actualizarla
+    window.currentSearchRadius = currentSearchRadius;
 
     // Petrolíferos data
     let petroliferosPermitsData = []; // Store petroliferos permits data
@@ -1092,10 +1095,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Funciones auxiliares
     function togglePreloader(show) {
-        if (!preloader) {
-            return;
+        // Preloader principal (fuera del mapa)
+        if (preloader) {
+            console.log(`🔄 togglePreloader principal: ${show ? 'MOSTRANDO' : 'OCULTANDO'}`);
+            preloader.classList.toggle('hidden', !show);
+            
+            if (!show) {
+                preloader.style.display = 'none';
+            } else {
+                preloader.style.display = 'flex';
+            }
         }
-        preloader.classList.toggle('hidden', !show);
+        
+        // Preloader del mapa (visible en pantalla completa)
+        const mapPreloader = document.getElementById('map-preloader');
+        if (mapPreloader) {
+            console.log(`🔄 togglePreloader del mapa: ${show ? 'MOSTRANDO' : 'OCULTANDO'}`);
+            if (show) {
+                mapPreloader.classList.add('active');
+                mapPreloader.style.display = 'flex';
+            } else {
+                mapPreloader.classList.remove('active');
+                mapPreloader.style.display = 'none';
+            }
+        }
     }
 
     const insetBoundsLayerGroup = L.layerGroup().addTo(map);
@@ -3522,14 +3545,21 @@ document.addEventListener('DOMContentLoaded', function () {
             const applyBtn = document.getElementById('apply-radius-btn');
 
             if (slider && valueDisplay) {
+                // SOLO actualizar el display, NO currentSearchRadius
+                // currentSearchRadius se actualiza solo cuando se hace clic en "Actualizar Análisis"
                 slider.addEventListener('input', function () {
-                    currentSearchRadius = this.value * 1000;
                     valueDisplay.textContent = this.value + ' km';
                 });
             }
 
             if (applyBtn && currentPresaSelected) {
                 applyBtn.addEventListener('click', function () {
+                    // AQUÍ sí actualizar currentSearchRadius cuando el usuario hace clic
+                    const slider = document.getElementById('radius-slider');
+                    if (slider) {
+                        currentSearchRadius = slider.value * 1000;
+                        console.log(`🎚️ Radio actualizado desde SLIDER: ${slider.value} km`);
+                    }
                     analyzePresaResources(currentPresaSelected.latlng, currentPresaSelected.name);
                 });
             }
@@ -3833,6 +3863,49 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Función para analizar recursos cercanos a una presa
     function analyzePresaResources(presaLatLng, presaNombre) {
+        // MOSTRAR PRELOADER al iniciar análisis
+        console.log('🔄 Mostrando preloader para análisis...');
+        togglePreloader(true);
+        
+        // Animar barra de progreso en AMBOS preloaders
+        const progressBars = document.querySelectorAll('.progress-fill');
+        const progressTexts = document.querySelectorAll('#preloader p, #map-preloader p');
+        
+        // Función para actualizar todos los preloaders
+        const updateProgress = (width, text) => {
+            progressBars.forEach(bar => bar.style.width = width);
+            progressTexts.forEach(txt => txt.textContent = text);
+        };
+        
+        // Iniciar animación
+        updateProgress('0%', 'Iniciando análisis...');
+        
+        // Animar hasta 30%
+        setTimeout(() => {
+            updateProgress('30%', 'Procesando localidades indígenas...');
+        }, 150);
+        
+        // Animar hasta 60%
+        setTimeout(() => {
+            updateProgress('60%', 'Analizando áreas protegidas...');
+        }, 300);
+        
+        // Animar hasta 90%
+        setTimeout(() => {
+            updateProgress('90%', 'Finalizando análisis...');
+        }, 450);
+        
+        // Dar tiempo al navegador para renderizar el preloader antes de iniciar el análisis pesado
+        setTimeout(() => {
+            executeAnalysis(presaLatLng, presaNombre);
+        }, 100);
+    }
+    
+    // Función auxiliar que ejecuta el análisis real
+    function executeAnalysis(presaLatLng, presaNombre) {
+        // IMPORTANTE: currentSearchRadius debe estar ya configurado ANTES de llamar esta función
+        console.log(`🔍 INICIO analyzePresaResources - currentSearchRadius = ${currentSearchRadius} metros (${currentSearchRadius / 1000} km)`);
+        
         // Cerrar todos los popups abiertos
         map.closePopup();
         
@@ -3842,9 +3915,14 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         presasAnalysisLayer = L.layerGroup().addTo(map);
 
-        // Mostrar control de radio si no existe
-        if (!radiusControl) {
-            createRadiusControl();
+        // Actualizar el slider si existe para que refleje el radio usado
+        if (radiusControl) {
+            const slider = document.getElementById('radius-slider');
+            const valueDisplay = document.getElementById('radius-value');
+            if (slider && valueDisplay) {
+                slider.value = currentSearchRadius / 1000;
+                valueDisplay.textContent = (currentSearchRadius / 1000) + ' km';
+            }
         }
 
         console.log(`🔍 Analizando recursos cercanos a: ${presaNombre} (Radio: ${currentSearchRadius / 1000}km)`);
@@ -3856,6 +3934,9 @@ document.addEventListener('DOMContentLoaded', function () {
             duration: 0.8
         });
 
+        // ⚠️ VERIFICACIÓN CRÍTICA: Valor de currentSearchRadius en este punto
+        console.log(`⚠️ CRÍTICO - currentSearchRadius en análisis: ${currentSearchRadius} metros (${currentSearchRadius / 1000} km)`);
+        
         // Objeto para almacenar estadísticas del análisis
         const analysisStats = {
             presaNombre: presaNombre,
@@ -3870,12 +3951,16 @@ document.addEventListener('DOMContentLoaded', function () {
             distanciaRioUsumacinta: null,
             localidadesDetalle: [] // Array para almacenar detalle de cada localidad
         };
+        
+        console.log(`📊 analysisStats.radioKm configurado a: ${analysisStats.radioKm} km`);
 
         // Analizar cada dataLayer
         Object.keys(presasDataLayers).forEach(layerType => {
             const layerData = presasDataLayers[layerType];
             const config = layerData.config;
             const radius = currentSearchRadius; // Usar radio actual
+            
+            console.log(`🔄 Procesando capa: ${layerType}, usando radius: ${radius} metros (${radius / 1000} km)`);
 
             // Dibujar círculo de búsqueda (solo una vez)
             if (layerType === Object.keys(presasDataLayers)[0]) {
@@ -4761,7 +4846,84 @@ document.addEventListener('DOMContentLoaded', function () {
             };
             summaryPanel.addTo(map);
         }
+        
+        // Completar barra de progreso al 100% en AMBOS preloaders
+        const progressBars = document.querySelectorAll('.progress-fill');
+        const progressTexts = document.querySelectorAll('#preloader p, #map-preloader p');
+        
+        progressBars.forEach(bar => bar.style.width = '100%');
+        progressTexts.forEach(txt => txt.textContent = '¡Análisis completado!');
+        
+        // OCULTAR AMBOS PRELOADERS después de una breve pausa para mostrar el 100%
+        setTimeout(() => {
+            togglePreloader(false);
+            console.log('✅ Análisis completado - Preloaders ocultados');
+        }, 300);
     }
+
+    // Funciones globales para el popup de presas con radio dinámico
+    // FORZAR sobreescritura de cualquier definición previa
+    window.radiusPreviewCircle = null;
+    
+    // ELIMINAR cualquier definición previa
+    delete window.analyzePresaClick;
+    
+    // Definir la función CORRECTA
+    window.analyzePresaClick = function(presaNombre, lat, lng, radius) {
+        console.log('📥 Parámetros recibidos:', { presaNombre, lat, lng, radius, tipo: typeof radius });
+        
+        // Convertir radio de km a metros
+        const radiusValue = radius ? parseInt(radius) : 10;
+        const radiusInMeters = radiusValue * 1000;
+        
+        // IMPORTANTE: Actualizar AMBAS variables (local y global)
+        currentSearchRadius = radiusInMeters;
+        window.currentSearchRadius = radiusInMeters;
+        currentPresaSelected = { name: presaNombre, latlng: L.latLng(lat, lng) };
+        
+        console.log(`🎯 Análisis iniciado: ${presaNombre}, Radio seleccionado: ${radiusValue} km (${radiusInMeters} metros)`);
+        console.log(`✅ currentSearchRadius (local) actualizado a: ${currentSearchRadius} metros`);
+        console.log(`✅ window.currentSearchRadius (global) actualizado a: ${window.currentSearchRadius} metros`);
+        
+        // Remover círculo de previsualización
+        if (window.radiusPreviewCircle) {
+            map.removeLayer(window.radiusPreviewCircle);
+            window.radiusPreviewCircle = null;
+        }
+        
+        // Cerrar popup
+        map.closePopup();
+        
+        // VERIFICAR valor antes de ejecutar análisis
+        console.log(`🚀 Ejecutando análisis con currentSearchRadius = ${currentSearchRadius} metros`);
+        
+        // Ejecutar análisis
+        analyzePresaResources(L.latLng(lat, lng), presaNombre);
+    };
+    
+    console.log('✅ window.analyzePresaClick definida correctamente en map-config.js');
+    
+    window.updateRadiusPreview = function(radiusKm, lat, lng) {
+        // Remover círculo anterior
+        if (window.radiusPreviewCircle) {
+            map.removeLayer(window.radiusPreviewCircle);
+        }
+        
+        // Crear nuevo círculo de previsualización
+        window.radiusPreviewCircle = L.circle([lat, lng], {
+            radius: radiusKm * 1000,
+            color: '#4CAF50',
+            fillColor: '#4CAF50',
+            fillOpacity: 0.1,
+            weight: 2,
+            dashArray: '5, 5',
+            interactive: false
+        }).addTo(map);
+        
+        // Ajustar vista para mostrar el círculo completo
+        const circleBounds = window.radiusPreviewCircle.getBounds();
+        map.fitBounds(circleBounds, { padding: [50, 50], maxZoom: 10 });
+    };
 
     // Función específica para cargar presas con icono personalizado
     async function loadPresasGeoJSON(url, options) {
@@ -4831,64 +4993,54 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Verificar si hay dataLayers disponibles para análisis
                     const hasDataLayers = Object.keys(presasDataLayers).length > 0;
 
-                    // Crear popup con diseño mejorado
+                    // ID seguro para el selector
+                    const presaId = nombrePresa.replace(/\s/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+
+                    // Crear popup compacto con selector de radio dinámico
                     const popupContent = `
-                        <div class="presa-popup-container">
-                            <div class="presa-popup-header">
-                                <h3 class="presa-popup-title">${nombrePresa}</h3>
-                                ${numero ? `<span class="presa-popup-subtitle">No. ${numero}</span>` : ''}
+                        <div style="font-family: 'Montserrat', sans-serif; min-width: 200px; max-width: 240px;">
+                            <div style="background: linear-gradient(135deg, #601623 0%, #8B1E3F 100%); padding: 6px 10px; margin: -10px -10px 8px -10px; border-radius: 4px 4px 0 0;">
+                                <h4 style="margin: 0; color: white; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                                    <i class="bi bi-water" style="font-size: 14px;"></i>
+                                    <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${nombrePresa}</span>
+                                </h4>
                             </div>
-                            <div class="presa-popup-body">
-                                ${props.estado || props.ESTADO ? `
-                                    <div class="presa-popup-row">
-                                        <i class="bi bi-building presa-popup-icon"></i>
-                                        <div class="presa-popup-data">
-                                            <span class="presa-popup-label">Estado</span>
-                                            <span class="presa-popup-value">${props.estado || props.ESTADO}</span>
-                                        </div>
-                                    </div>
-                                ` : ''}
-                                ${props.capacidad || props.CAPACIDAD ? `
-                                    <div class="presa-popup-row">
-                                        <i class="bi bi-lightning-charge-fill presa-popup-icon"></i>
-                                        <div class="presa-popup-data">
-                                            <span class="presa-popup-label">Capacidad</span>
-                                            <span class="presa-popup-value">${props.capacidad || props.CAPACIDAD} MW</span>
-                                        </div>
-                                    </div>
-                                ` : ''}
-                                ${latitud && longitud ? `
-                                    <div class="presa-popup-row">
-                                        <i class="bi bi-geo-alt-fill presa-popup-icon"></i>
-                                        <div class="presa-popup-data">
-                                            <span class="presa-popup-label">Coordenadas</span>
-                                            <span class="presa-popup-value" style="font-family: monospace; font-size: 0.85rem;">${latitud}, ${longitud}</span>
-                                        </div>
-                                    </div>
-                                ` : ''}
-                            </div>
-                            ${props.observaciones || props.OBSERVACIONES ? `
-                                <div class="presa-popup-footer">
-                                    <i class="bi bi-info-circle-fill"></i> ${props.observaciones || props.OBSERVACIONES}
-                                </div>
-                            ` : ''}
                             ${hasDataLayers ? `
-                                <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #eee;">
-                                    <button 
-                                        onclick="window.analyzePresaClick('${nombrePresa}', ${feature.geometry.coordinates[1]}, ${feature.geometry.coordinates[0]})"
-                                        style="width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;"
-                                    >
+                                <div style="margin-top: 8px;">
+                                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                                        <i class="bi bi-bullseye" style="color: #601623; font-size: 12px;"></i>
+                                        <select id="radio-select-${presaId}" 
+                                                onchange="window.updateRadiusPreview(this.value, ${feature.geometry.coordinates[1]}, ${feature.geometry.coordinates[0]})"
+                                                style="flex: 1; padding: 4px 6px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; background: white; cursor: pointer;">
+                                            <option value="5">Radio: 5 km</option>
+                                            <option value="10" selected>Radio: 10 km</option>
+                                            <option value="15">Radio: 15 km</option>
+                                            <option value="20">Radio: 20 km</option>
+                                            <option value="30">Radio: 30 km</option>
+                                            <option value="50">Radio: 50 km</option>
+                                        </select>
+                                    </div>
+                                    <button onclick="(function() { try { console.log('🔘 INICIO botón'); const popup = document.querySelector('.leaflet-popup-content'); console.log('popup:', popup); const select = popup ? popup.querySelector('select[id^=\\'radio-select-\\']') : null; console.log('select:', select); const radio = select ? select.value : 10; console.log('🔘 Radio capturado:', radio, 'tipo:', typeof radio); if (typeof window.analyzePresaClick !== 'function') { console.error('❌ window.analyzePresaClick NO existe'); return; } console.log('✅ Llamando window.analyzePresaClick'); window.analyzePresaClick('${nombrePresa.replace(/'/g, "\\'")}', ${feature.geometry.coordinates[1]}, ${feature.geometry.coordinates[0]}, radio); } catch(e) { console.error('❌ ERROR en botón:', e); } })()" style="width: 100%; padding: 6px 8px; background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%); color: white; border: none; border-radius: 3px; cursor: pointer; font-weight: 600; font-size: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 4px;">
                                         <i class="bi bi-search"></i>
-                                        Analizar Recursos Cercanos (10km)
+                                        <span>Analizar Recursos</span>
                                     </button>
                                 </div>
                             ` : ''}
                         </div>
                     `;
 
-                    layer.bindPopup(popupContent, {
-                        maxWidth: 400,
-                        className: 'presa-popup'
+                    const popup = layer.bindPopup(popupContent, {
+                        maxWidth: 240,
+                        minWidth: 200,
+                        className: 'presa-popup-compact'
+                    });
+                    
+                    // Limpiar círculo de previsualización cuando se cierre el popup
+                    layer.on('popupclose', function() {
+                        if (window.radiusPreviewCircle) {
+                            map.removeLayer(window.radiusPreviewCircle);
+                            window.radiusPreviewCircle = null;
+                        }
                     });
                 }
             });
@@ -4921,16 +5073,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Exponer función de análisis globalmente para uso en popup
-    window.analyzePresaClick = function (presaNombre, lat, lng) {
-        const presaLatLng = L.latLng(lat, lng);
-        currentPresaSelected = {
-            name: presaNombre,
-            latlng: presaLatLng
-        };
-        map.closePopup(); // Cerrar el popup ANTES de iniciar análisis
-        analyzePresaResources(presaLatLng, presaNombre);
-    };
+    // ELIMINADO: Función vieja que sobrescribía la nueva (movida a línea 4795)
+    // La función window.analyzePresaClick ahora se define ANTES en el código (línea ~4795)
+    // con soporte para el parámetro "radius"
 
     function createGradientPattern(color) {
         const canvas = document.createElement('canvas');
@@ -9058,8 +9203,15 @@ document.addEventListener('DOMContentLoaded', function () {
                                 // Agregar leyenda de capas de conservación
                                 addConservationLayersLegend();
                                 console.log('🟡 Leyenda de capas de conservación agregada');
+                                
+                                // FORZAR ocultación del preloader después de cargar todo
+                                console.log('🔄 Forzando ocultación final del preloader...');
+                                togglePreloader(false);
                             } else {
                                 console.log('🟡 No hay capas adicionales para cargar');
+                                // FORZAR ocultación del preloader
+                                console.log('🔄 Forzando ocultación final del preloader...');
+                                togglePreloader(false);
                             }
                         } else {
                             await loadGeoJSON(mapConfig.geojsonUrl, { type: mapConfig.geojsonUrlType });

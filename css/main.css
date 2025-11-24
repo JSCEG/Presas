@@ -755,6 +755,49 @@ button {
     padding: 1rem;
 }
 
+/* Preloader específico para el mapa (visible en pantalla completa) */
+.map-preloader {
+    position: absolute;
+    inset: 0;
+    background: rgba(240, 245, 243, 0.95);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 10000;
+    transition: opacity 0.4s ease;
+}
+
+.map-preloader.active {
+    display: flex !important;
+}
+
+/* Asegurar que el preloader del mapa se vea en pantalla completa */
+.map-card:fullscreen .map-preloader,
+.map-card:-webkit-full-screen .map-preloader,
+.map-card:-moz-full-screen .map-preloader,
+.map-card:-ms-fullscreen .map-preloader {
+    position: fixed;
+    z-index: 99999 !important;
+}
+
+/* Overlay de progreso de exportación dentro del map-card */
+#map-export-progress-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 10000;
+}
+
+/* Asegurar que se vea en pantalla completa */
+.map-card:fullscreen #map-export-progress-overlay,
+.map-card:-webkit-full-screen #map-export-progress-overlay,
+.map-card:-moz-full-screen #map-export-progress-overlay,
+.map-card:-ms-fullscreen #map-export-progress-overlay {
+    position: fixed;
+    z-index: 99999 !important;
+}
+
 #preloader.hidden {
     opacity: 0;
     visibility: hidden;
@@ -819,19 +862,24 @@ button {
 
 .progress-fill {
     height: 100%;
-    background: var(--color-gobmx-guinda);
+    background: linear-gradient(90deg, var(--color-gobmx-guinda) 0%, var(--color-gobmx-verde) 100%);
     width: 0%;
     border-radius: 999px;
-    animation: fill-progress 2.5s ease-in-out forwards;
+    transition: width 0.4s ease-out;
+    box-shadow: 0 0 10px rgba(155, 34, 71, 0.3);
 }
 
-@keyframes fill-progress {
-    from {
-        width: 0%;
-    }
+/* Animación de pulso para cuando está cargando */
+.progress-fill:not([style*="100%"]) {
+    animation: pulse-glow 1.5s ease-in-out infinite;
+}
 
-    to {
-        width: 100%;
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(155, 34, 71, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(155, 34, 71, 0.6);
     }
 }
 
