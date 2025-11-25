@@ -504,14 +504,7 @@
         margin-bottom: 2rem;
     }
 
-    .mobile-drawer-section-title {
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--color-gobmx-guinda);
-        margin-bottom: 1rem;
-    }
+    .mobile-drawer-section-title { font-size: 0.75rem; font-weight: 700; color: var(--color-gobmx-guinda); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem; padding-left: 1rem; }
 
     .bottom-sheet-list {
         display: flex;
@@ -893,3 +886,5 @@
         display: none !important;
     }
 }
+
+
