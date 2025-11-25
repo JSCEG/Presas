@@ -5,7 +5,8 @@
 
 class MobileInterface {
     constructor() {
-        this.isMobile = window.innerWidth < 768;
+        // Forzar interfaz móvil en todas las pantallas
+        this.isMobile = true;
         this.bottomSheet = null;
         this.sideDrawer = null;
         this.searchModal = null;
@@ -19,25 +20,9 @@ class MobileInterface {
     }
 
     init() {
-        if (!this.isMobile) return;
-
         this.createMobileElements();
         this.attachEventListeners();
         this.setupTouchHandlers();
-
-        // Escuchar cambios de orientación
-        window.addEventListener('resize', () => {
-            const wasMobile = this.isMobile;
-            this.isMobile = window.innerWidth < 768;
-
-            if (wasMobile !== this.isMobile) {
-                if (this.isMobile) {
-                    this.createMobileElements();
-                } else {
-                    this.removeMobileElements();
-                }
-            }
-        });
     }
 
     attachEventListeners() {

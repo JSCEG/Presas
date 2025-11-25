@@ -888,3 +888,136 @@
 }
 
 
+
+/* Forzar ocultar elementos de escritorio en todas las pantallas */
+.card-toolbar, .map-title-banner, .filters-panel, .map-description, .card-footer, .fullscreen-toolbar, .info-section { display: none !important; }
+
+/* Ocultar nav y footer en todas las pantallas */
+.site-header, .main-nav, .site-footer { display: none !important; }
+
+/* Forzar mapa a pantalla completa en todas las resoluciones */
+body, html {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+}
+
+.main-container {
+    width: 100% !important;
+    height: 100vh !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+#map-container,
+.map-card,
+.map-content-wrapper,
+#map {
+    width: 100% !important;
+    height: 100% !important;
+    border: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.map-card {
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+/* Hacer que el mapa salga del flujo normal y ocupe toda la pantalla */
+.map-section {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: 1 !important;
+}
+
+.container {
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Asegurar que todos los controles floten encima del mapa */
+.mobile-menu-btn,
+.mobile-search-btn,
+.mobile-layers-btn,
+.mobile-action-buttons,
+.mobile-bottom-sheet,
+.mobile-side-drawer,
+.mobile-drawer-overlay {
+    position: fixed !important;
+}
+
+/* Ocultar título del mapa y controles adicionales */
+.map-title-text,
+#map-title-display,
+.selected-region-banner {
+    display: none !important;
+}
+
+/* Asegurar z-index correcto para controles móviles */
+.mobile-menu-btn { z-index: 1000 !important; }
+.mobile-search-btn { z-index: 1000 !important; }
+.mobile-layers-btn { z-index: 999 !important; }
+.mobile-action-buttons { z-index: 999 !important; }
+.mobile-bottom-sheet { z-index: 1002 !important; }
+.mobile-side-drawer { z-index: 2000 !important; }
+.mobile-drawer-overlay { z-index: 1999 !important; }
+
+/* Eliminar restricciones del container para que el mapa ocupe todo */
+.map-section .container,
+section.map-section,
+main {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Eliminar cualquier margen inferior */
+.map-card,
+.map-section,
+.map-content-wrapper,
+#map-container,
+main,
+body {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* Asegurar que no haya espacio extra */
+* {
+    box-sizing: border-box !important;
+}
+
+/* Forzar altura completa con viewport units */
+html {
+    height: 100vh !important;
+    min-height: 100vh !important;
+}
+
+body {
+    height: 100vh !important;
+    min-height: 100vh !important;
+}
+
+main,
+.map-section,
+.map-section .container,
+.map-card,
+.map-content-wrapper,
+#map-container,
+#map {
+    height: 100vh !important;
+    min-height: 100vh !important;
+    max-height: 100vh !important;
+}
