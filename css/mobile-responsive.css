@@ -304,6 +304,8 @@
         justify-content: center;
         align-items: center;
         cursor: grab;
+        flex-shrink: 0;
+        /* Evitar que se colapse */
     }
 
     .bottom-sheet-handle::after {
@@ -317,6 +319,8 @@
     .bottom-sheet-header {
         padding: 0 1rem 1rem 1rem;
         border-bottom: 1px solid #eee;
+        flex-shrink: 0;
+        /* Evitar que se colapse */
     }
 
     .bottom-sheet-title {
@@ -338,6 +342,10 @@
         overflow-x: auto;
         white-space: nowrap;
         -webkit-overflow-scrolling: touch;
+        flex-shrink: 0;
+        /* Evitar que se colapse */
+        min-height: 54px;
+        /* Altura mínima garantizada */
     }
 
     .bottom-sheet-tab {
