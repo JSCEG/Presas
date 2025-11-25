@@ -602,6 +602,35 @@ class MobileInterface {
         }
     }
 
+    addLegendToLayersTab(legendHtml) {
+        const layersContainer = this.bottomSheet.querySelector('#mobile-layers-container');
+        if (!layersContainer) return;
+
+        // Buscar si ya existe una leyenda y removerla
+        const existingLegend = layersContainer.querySelector('.mobile-legend-container');
+        if (existingLegend) {
+            existingLegend.remove();
+        }
+
+        // Crear contenedor para la leyenda
+        const legendContainer = document.createElement('div');
+        legendContainer.className = 'mobile-legend-container';
+        legendContainer.style.marginTop = '1rem';
+        legendContainer.style.padding = '1rem';
+        legendContainer.style.background = '#f8f9fa';
+        legendContainer.style.borderRadius = '8px';
+        legendContainer.style.border = '1px solid #eee';
+
+        // Limpiar estilos inline que puedan venir del control original y ajustar para móvil
+        let cleanHtml = legendHtml.replace(/width: 22px;/g, 'width: 18px;'); // Iconos más pequeños
+        cleanHtml = cleanHtml.replace(/font-size: 13px;/g, 'font-size: 14px;'); // Títulos más legibles
+
+        legendContainer.innerHTML = cleanHtml;
+
+        // Agregar al contenedor de capas
+        layersContainer.appendChild(legendContainer);
+    }
+
     exportMap() {
         document.getElementById('export-map-btn')?.click();
     }

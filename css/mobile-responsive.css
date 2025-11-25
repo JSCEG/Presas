@@ -886,3 +886,10 @@
     box-sizing: border-box;
 }
 
+
+/* Ocultar leyenda flotante en móvil */
+@media (max-width: 767px) {
+    .info.legend {
+        display: none !important;
+    }
+}

@@ -2547,6 +2547,60 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Leyenda para capas de conservación (Presas)
     function addConservationLayersLegend() {
+        // En móvil, agregar la leyenda al tab de capas en lugar del mapa
+        if (window.mobileInterface && window.mobileInterface.isMobile) {
+            let legendHtml = '<strong style="display: block; margin-bottom: 10px; font-size: 13px; color: #601623;">CAPAS DE CONSERVACIÓN</strong>';
+
+            // Construir HTML de la leyenda (reutilizando la lógica existente)
+            // Ramsar
+            legendHtml += `
+                <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <i style="background: #8D6E63; width: 22px; height: 16px; border: 2px solid #5D4037; opacity: 0.7; display: inline-block; margin-right: 8px; border-radius: 2px;"></i>
+                    <span style="font-size: 12px; font-weight: 600; color: #5D4037;">Sitios Ramsar</span>
+                </div>
+            `;
+            // ANP
+            legendHtml += `
+                <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <i style="background: #66BB6A; width: 22px; height: 16px; border: 2px solid #388E3C; opacity: 0.7; display: inline-block; margin-right: 8px; border-radius: 2px;"></i>
+                    <span style="font-size: 12px; font-weight: 600; color: #388E3C;">Áreas Naturales Protegidas</span>
+                </div>
+            `;
+            // ADVC
+            legendHtml += `
+                <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <i style="background: #AB47BC; width: 22px; height: 16px; border: 2px solid #7B1FA2; opacity: 0.7; display: inline-block; margin-right: 8px; border-radius: 2px;"></i>
+                    <span style="font-size: 12px; font-weight: 600; color: #7B1FA2;">Áreas Voluntarias (ADVC)</span>
+                </div>
+            `;
+            // Río Usumacinta
+            legendHtml += `
+                <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <div style="width: 22px; height: 0; border-top: 3px solid #0288D1; display: inline-block; margin-right: 8px;"></div>
+                    <span style="font-size: 12px; font-weight: 600; color: #0288D1;">Río Usumacinta</span>
+                </div>
+            `;
+            // Separador
+            legendHtml += `<div style="border-top: 1px solid #ddd; margin: 10px 0;"></div>`;
+            // Presas
+            legendHtml += `
+                <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <img src="https://cdn.sassoapps.com/iconos/represa.png" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;" alt="Presa">
+                    <span style="font-size: 12px; font-weight: 600; color: #601623;">Presas Hidroeléctricas</span>
+                </div>
+            `;
+            // Localidades
+            legendHtml += `
+                <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <i style="background: #FF9800; width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; margin-left: 6px;"></i>
+                    <span style="font-size: 12px; font-weight: 600; color: #E65100;">Localidades Indígenas</span>
+                </div>
+            `;
+
+            window.mobileInterface.addLegendToLayersTab(legendHtml);
+            return; // No crear control de Leaflet
+        }
+
         if (pibLegendControl) {
             map.removeControl(pibLegendControl);
         }
