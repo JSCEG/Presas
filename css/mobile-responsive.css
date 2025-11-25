@@ -24,6 +24,11 @@
         overflow: hidden;
     }
 
+    /* Header oculto completamente en móvil */
+    .site-header {
+        display: none !important;
+    }
+
     /* Header compacto y colapsable */
     .site-header {
         position: fixed;

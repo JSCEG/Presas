@@ -49,6 +49,9 @@ class MobileInterface {
         // Crear botones de acción flotantes
         this.createActionButtons();
 
+        // Crear botón de capas (bottom-left)
+        this.createLayersButton();
+
         // Crear botón de ubicación
         this.createLocationButton();
 
@@ -89,23 +92,33 @@ class MobileInterface {
         const container = document.createElement('div');
         container.className = 'mobile-action-buttons';
 
-        // Botón de capas
-        const layersBtn = document.createElement('button');
-        layersBtn.className = 'mobile-action-btn';
-        layersBtn.innerHTML = '<i class="bi bi-layers"></i>';
-        layersBtn.setAttribute('aria-label', 'Capas del mapa');
-        layersBtn.addEventListener('click', () => this.toggleLayers());
-
-        // Botón de exportar
+        // Botón de exportar (único botón arriba a la derecha)
         const exportBtn = document.createElement('button');
         exportBtn.className = 'mobile-action-btn primary';
         exportBtn.innerHTML = '<i class="bi bi-download"></i>';
         exportBtn.setAttribute('aria-label', 'Exportar mapa');
         exportBtn.addEventListener('click', () => this.exportMap());
 
-        container.appendChild(layersBtn);
         container.appendChild(exportBtn);
         document.body.appendChild(container);
+    }
+
+    createLayersButton() {
+        // Botón de capas en bottom-left (estilo Google Maps)
+        const btn = document.createElement('button');
+        btn.className = 'mobile-layers-btn';
+        btn.innerHTML = `
+            <i class="bi bi-layers"></i>
+            <span>Capas</span>
+        `;
+        btn.setAttribute('aria-label', 'Capas del mapa');
+        document.body.appendChild(btn);
+
+        btn.addEventListener('click', () => {
+            // Expandir bottom sheet y cambiar al tab de capas
+            this.expandBottomSheet();
+            this.switchBottomSheetTab('layers');
+        });
     }
 
     createLocationButton() {
@@ -129,10 +142,12 @@ class MobileInterface {
             </div>
             <div class="bottom-sheet-tabs">
                 <button class="bottom-sheet-tab active" data-tab="controls">Controles</button>
+                <button class="bottom-sheet-tab" data-tab="layers">Capas</button>
                 <button class="bottom-sheet-tab" data-tab="info">Información</button>
-                <button class="bottom-sheet-tab" data-tab="filters">Filtros</button>
+                <button class="bottom-sheet-tab" data-tab="about">Acerca de</button>
             </div>
             <div class="bottom-sheet-content">
+                <!-- Tab: Controles -->
                 <div class="bottom-sheet-tab-content" data-content="controls">
                     <div class="bottom-sheet-controls">
                         <div class="bottom-sheet-control-group">
@@ -147,16 +162,54 @@ class MobileInterface {
                                 <option value="">Seleccione un mapa</option>
                             </select>
                         </div>
+                        <div class="bottom-sheet-control-group" id="mobile-search-group" style="display: none;">
+                            <label for="mobile-permit-search">Buscar permiso</label>
+                            <input type="text" id="mobile-permit-search" class="control" placeholder="Número de permiso o razón social">
+                        </div>
                     </div>
                 </div>
+                
+                <!-- Tab: Capas -->
+                <div class="bottom-sheet-tab-content" data-content="layers" style="display: none;">
+                    <div id="mobile-layers-container">
+                        <p style="color: #666; padding: 1rem;">Selecciona un mapa para ver las capas disponibles.</p>
+                    </div>
+                </div>
+                
+                <!-- Tab: Información -->
                 <div class="bottom-sheet-tab-content" data-content="info" style="display: none;">
                     <div id="mobile-map-info">
-                        <p>Selecciona un mapa para ver su información.</p>
+                        <div id="mobile-map-description" style="padding: 1rem;">
+                            <h4 id="mobile-map-description-title" style="margin: 0 0 0.5rem 0; color: var(--color-gobmx-verde);"></h4>
+                            <p id="mobile-map-description-content" style="margin: 0; color: #666; line-height: 1.6;"></p>
+                        </div>
+                        <div id="mobile-analysis-data" style="padding: 1rem; border-top: 1px solid #eee; display: none;">
+                            <h4 style="margin: 0 0 1rem 0; color: var(--color-gobmx-verde);">Datos de Análisis</h4>
+                            <div id="mobile-analysis-content"></div>
+                        </div>
                     </div>
                 </div>
-                <div class="bottom-sheet-tab-content" data-content="filters" style="display: none;">
-                    <div id="mobile-filters">
-                        <p>Los filtros aparecerán aquí según el mapa seleccionado.</p>
+                
+                <!-- Tab: Acerca de -->
+                <div class="bottom-sheet-tab-content" data-content="about" style="display: none;">
+                    <div style="padding: 1.5rem; text-align: center;">
+                        <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                            <img src="img/logo_sener.png" alt="SENER" style="height: 60px;">
+                            <img src="img/snien.png" alt="SNIEn" style="height: 50px;">
+                        </div>
+                        <h3 style="margin: 0 0 0.5rem 0; color: var(--color-gobmx-verde); font-size: 1.1rem;">Mapas Dinámicos de Presas</h3>
+                        <p style="margin: 0 0 1rem 0; color: #666; font-size: 0.9rem;">Subsecretaría de Planeación y Transición Energética</p>
+                        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                            <p style="margin: 0; font-size: 0.85rem; color: #666;">
+                                <strong>Fuente de datos:</strong><br>
+                                Hoja de cálculo institucional publicada (Google Sheets)
+                            </p>
+                        </div>
+                        <div id="mobile-last-updated" style="margin-top: 1rem; padding: 0.75rem; background: #e8f5e9; border-radius: 8px;">
+                            <p style="margin: 0; font-size: 0.85rem; color: #2e7d32;">
+                                <i class="bi bi-clock"></i> <strong>Última actualización:</strong> <span id="mobile-update-time">--</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -167,6 +220,12 @@ class MobileInterface {
 
         // Sincronizar con los selectores principales
         this.syncBottomSheetControls();
+
+        // Sincronizar información del mapa
+        this.syncMapInfo();
+
+        // Sincronizar capas
+        this.syncLayers();
     }
 
     createSideDrawer() {
@@ -519,8 +578,120 @@ class MobileInterface {
         }
     }
 
+    syncMapInfo() {
+        // Sincronizar información del mapa desde el desktop
+        const observer = new MutationObserver(() => {
+            const desktopTitle = document.getElementById('map-description-title');
+            const desktopContent = document.getElementById('map-description-content');
+            const mobileTitle = document.getElementById('mobile-map-description-title');
+            const mobileContent = document.getElementById('mobile-map-description-content');
+
+            if (desktopTitle && mobileTitle) {
+                mobileTitle.textContent = desktopTitle.textContent;
+            }
+            if (desktopContent && mobileContent) {
+                mobileContent.textContent = desktopContent.textContent;
+            }
+        });
+
+        const mapDescription = document.getElementById('map-description');
+        if (mapDescription) {
+            observer.observe(mapDescription, { childList: true, subtree: true, characterData: true });
+        }
+
+        // Sincronizar última actualización
+        const lastUpdated = document.getElementById('last-updated');
+        const mobileUpdateTime = document.getElementById('mobile-update-time');
+        if (lastUpdated && mobileUpdateTime) {
+            const updateObserver = new MutationObserver(() => {
+                mobileUpdateTime.textContent = lastUpdated.textContent;
+            });
+            updateObserver.observe(lastUpdated, { childList: true, characterData: true, subtree: true });
+            mobileUpdateTime.textContent = lastUpdated.textContent;
+        }
+    }
+
+    syncLayers() {
+        // Sincronizar control de capas de Leaflet con el bottom sheet
+        const checkLayers = () => {
+            if (!window.map) {
+                setTimeout(checkLayers, 500);
+                return;
+            }
+
+            const layersContainer = document.getElementById('mobile-layers-container');
+            if (!layersContainer) return;
+
+            // Observar cambios en el control de capas de Leaflet
+            const layersControl = document.querySelector('.leaflet-control-layers');
+            if (layersControl) {
+                const updateMobileLayers = () => {
+                    const baseLayers = layersControl.querySelectorAll('.leaflet-control-layers-base label');
+                    const overlays = layersControl.querySelectorAll('.leaflet-control-layers-overlays label');
+
+                    let html = '';
+
+                    if (baseLayers.length > 0) {
+                        html += '<div style="margin-bottom: 1.5rem;"><h4 style="margin: 0 0 0.75rem 0; padding: 0 1rem; color: var(--color-gobmx-verde); font-size: 0.9rem;">Mapas Base</h4>';
+                        baseLayers.forEach(label => {
+                            const input = label.querySelector('input');
+                            const text = label.querySelector('span').textContent.trim();
+                            const checked = input.checked ? 'checked' : '';
+                            html += `
+                                <label style="display: flex; align-items: center; padding: 0.75rem 1rem; cursor: pointer; transition: background 0.2s;" 
+                                       onmouseover="this.style.background='#f5f5f5'" 
+                                       onmouseout="this.style.background='transparent'">
+                                    <input type="radio" name="mobile-base-layer" value="${text}" ${checked} 
+                                           style="margin-right: 0.75rem; width: 18px; height: 18px; cursor: pointer;"
+                                           onchange="document.querySelectorAll('.leaflet-control-layers-base input')[Array.from(document.querySelectorAll('.leaflet-control-layers-base label span')).findIndex(s => s.textContent.trim() === '${text}')].click()">
+                                    <span style="flex: 1; font-size: 0.9rem; color: #333;">${text}</span>
+                                </label>
+                            `;
+                        });
+                        html += '</div>';
+                    }
+
+                    if (overlays.length > 0) {
+                        html += '<div><h4 style="margin: 0 0 0.75rem 0; padding: 0 1rem; color: var(--color-gobmx-verde); font-size: 0.9rem;">Capas Adicionales</h4>';
+                        overlays.forEach(label => {
+                            const input = label.querySelector('input');
+                            const text = label.querySelector('span').textContent.trim();
+                            const checked = input.checked ? 'checked' : '';
+                            html += `
+                                <label style="display: flex; align-items: center; padding: 0.75rem 1rem; cursor: pointer; transition: background 0.2s;"
+                                       onmouseover="this.style.background='#f5f5f5'" 
+                                       onmouseout="this.style.background='transparent'">
+                                    <input type="checkbox" ${checked} 
+                                           style="margin-right: 0.75rem; width: 18px; height: 18px; cursor: pointer;"
+                                           onchange="document.querySelectorAll('.leaflet-control-layers-overlays input')[Array.from(document.querySelectorAll('.leaflet-control-layers-overlays label span')).findIndex(s => s.textContent.trim() === '${text}')].click()">
+                                    <span style="flex: 1; font-size: 0.9rem; color: #333;">${text}</span>
+                                </label>
+                            `;
+                        });
+                        html += '</div>';
+                    }
+
+                    if (html === '') {
+                        html = '<p style="color: #666; padding: 1rem;">No hay capas disponibles.</p>';
+                    }
+
+                    layersContainer.innerHTML = html;
+                };
+
+                // Actualizar inicialmente
+                updateMobileLayers();
+
+                // Observar cambios
+                const observer = new MutationObserver(updateMobileLayers);
+                observer.observe(layersControl, { childList: true, subtree: true, attributes: true });
+            }
+        };
+
+        checkLayers();
+    }
+
     removeMobileElements() {
-        document.querySelectorAll('.mobile-menu-btn, .mobile-search-btn, .mobile-action-buttons, .mobile-location-btn, .mobile-bottom-sheet, .mobile-side-drawer, .mobile-drawer-overlay, .mobile-search-modal').forEach(el => {
+        document.querySelectorAll('.mobile-menu-btn, .mobile-search-btn, .mobile-action-buttons, .mobile-layers-btn, .mobile-location-btn, .mobile-bottom-sheet, .mobile-side-drawer, .mobile-drawer-overlay, .mobile-search-modal, .mobile-map-legend').forEach(el => {
             el.remove();
         });
     }
