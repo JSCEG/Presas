@@ -39,6 +39,11 @@ class MobileInterface {
         });
     }
 
+    attachEventListeners() {
+        // Este método se puede usar para event listeners globales si es necesario
+        // Por ahora, los event listeners se agregan en cada método create*
+    }
+
     createMobileElements() {
         // Crear botón de menú hamburguesa
         this.createMenuButton();
@@ -131,14 +136,39 @@ class MobileInterface {
         btn.addEventListener('click', () => this.centerOnLocation());
     }
 
+    createLayersButton() {
+        // Botón de capas en bottom-left (estilo Google Maps)
+        const btn = document.createElement('button');
+        btn.className = 'mobile-layers-btn';
+        btn.innerHTML = `
+            <i class="bi bi-layers"></i>
+            <span>Capas</span>
+        `;
+        btn.setAttribute('aria-label', 'Capas del mapa');
+        document.body.appendChild(btn);
+
+        btn.addEventListener('click', () => {
+            // Expandir bottom sheet y cambiar al tab de capas
+            this.expandBottomSheet();
+            this.switchBottomSheetTab('layers');
+        });
+    }
+
     createBottomSheet() {
         const sheet = document.createElement('div');
         sheet.className = 'mobile-bottom-sheet collapsed';
         sheet.innerHTML = `
             <div class="bottom-sheet-handle"></div>
             <div class="bottom-sheet-header">
-                <h3 class="bottom-sheet-title">Controles del Mapa</h3>
-                <p class="bottom-sheet-subtitle">Desliza para ver más opciones</p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3 class="bottom-sheet-title">Controles del Mapa</h3>
+                        <p class="bottom-sheet-subtitle">Desliza para ver más opciones</p>
+                    </div>
+                    <button class="bottom-sheet-close-btn" style="background: none; border: none; font-size: 24px; color: #666; cursor: pointer; padding: 0.5rem;">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
             </div>
             <div class="bottom-sheet-tabs">
                 <button class="bottom-sheet-tab active" data-tab="controls">Controles</button>
@@ -355,6 +385,15 @@ class MobileInterface {
 
         const handle = this.bottomSheet.querySelector('.bottom-sheet-handle');
         const header = this.bottomSheet.querySelector('.bottom-sheet-header');
+        const closeBtn = this.bottomSheet.querySelector('.bottom-sheet-close-btn');
+
+        // Event listener para el botón de cerrar
+        if (closeBtn) {
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.collapseBottomSheet();
+            });
+        }
 
         [handle, header].forEach(element => {
             element.addEventListener('touchstart', (e) => {
@@ -462,6 +501,11 @@ class MobileInterface {
     }
 
     switchBottomSheetTab(tabName) {
+        // Expandir el Bottom Sheet si está colapsado
+        if (!this.isBottomSheetExpanded) {
+            this.expandBottomSheet();
+        }
+
         // Actualizar tabs activos
         this.bottomSheet.querySelectorAll('.bottom-sheet-tab').forEach(tab => {
             tab.classList.toggle('active', tab.dataset.tab === tabName);
