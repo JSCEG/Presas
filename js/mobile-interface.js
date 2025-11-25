@@ -308,6 +308,13 @@ class MobileInterface {
                         </div>
                         </div>
                     </div>
+                    </div>
+                </div>
+                <div class="mobile-drawer-section">
+                    <h3 class="mobile-drawer-section-title">Leyenda</h3>
+                    <div id="mobile-drawer-legends" style="padding: 0 1rem;">
+                        <p style="color: #999; font-size: 0.9rem; font-style: italic;">Selecciona un mapa para ver la leyenda.</p>
+                    </div>
                 </div>
                 <div class="mobile-drawer-section">
                     <h3 class="mobile-drawer-section-title">Información</h3>
@@ -603,32 +610,52 @@ class MobileInterface {
     }
 
     addLegendToLayersTab(legendHtml) {
+        // 1. Agregar al Bottom Sheet (Tab Capas)
         const layersContainer = this.bottomSheet.querySelector('#mobile-layers-container');
-        if (!layersContainer) return;
+        if (layersContainer) {
+            // Buscar si ya existe una leyenda y removerla
+            const existingLegend = layersContainer.querySelector('.mobile-legend-container');
+            if (existingLegend) {
+                existingLegend.remove();
+            }
 
-        // Buscar si ya existe una leyenda y removerla
-        const existingLegend = layersContainer.querySelector('.mobile-legend-container');
-        if (existingLegend) {
-            existingLegend.remove();
+            // Crear contenedor para la leyenda
+            const legendContainer = document.createElement('div');
+            legendContainer.className = 'mobile-legend-container';
+            legendContainer.style.marginTop = '1rem';
+            legendContainer.style.padding = '1rem';
+            legendContainer.style.background = '#f8f9fa';
+            legendContainer.style.borderRadius = '8px';
+            legendContainer.style.border = '1px solid #eee';
+
+            // Limpiar estilos inline que puedan venir del control original y ajustar para móvil
+            let cleanHtml = legendHtml.replace(/width: 22px;/g, 'width: 18px;'); // Iconos más pequeños
+            cleanHtml = cleanHtml.replace(/font-size: 13px;/g, 'font-size: 14px;'); // Títulos más legibles
+
+            legendContainer.innerHTML = cleanHtml;
+
+            // Agregar al contenedor de capas
+            layersContainer.appendChild(legendContainer);
         }
 
-        // Crear contenedor para la leyenda
-        const legendContainer = document.createElement('div');
-        legendContainer.className = 'mobile-legend-container';
-        legendContainer.style.marginTop = '1rem';
-        legendContainer.style.padding = '1rem';
-        legendContainer.style.background = '#f8f9fa';
-        legendContainer.style.borderRadius = '8px';
-        legendContainer.style.border = '1px solid #eee';
+        // 2. Agregar al Side Drawer (Menú Lateral)
+        const drawerLegendsContainer = this.sideDrawer.querySelector('#mobile-drawer-legends');
+        if (drawerLegendsContainer) {
+            // Limpiar mensaje por defecto o leyenda anterior
+            drawerLegendsContainer.innerHTML = '';
 
-        // Limpiar estilos inline que puedan venir del control original y ajustar para móvil
-        let cleanHtml = legendHtml.replace(/width: 22px;/g, 'width: 18px;'); // Iconos más pequeños
-        cleanHtml = cleanHtml.replace(/font-size: 13px;/g, 'font-size: 14px;'); // Títulos más legibles
+            // Crear contenedor para la leyenda (clonado o nuevo)
+            const drawerLegendDiv = document.createElement('div');
+            drawerLegendDiv.className = 'mobile-drawer-legend-content';
 
-        legendContainer.innerHTML = cleanHtml;
+            // Usar el mismo HTML limpio
+            let cleanHtml = legendHtml.replace(/width: 22px;/g, 'width: 18px;');
+            cleanHtml = cleanHtml.replace(/font-size: 13px;/g, 'font-size: 14px;');
 
-        // Agregar al contenedor de capas
-        layersContainer.appendChild(legendContainer);
+            drawerLegendDiv.innerHTML = cleanHtml;
+
+            drawerLegendsContainer.appendChild(drawerLegendDiv);
+        }
     }
 
     exportMap() {
