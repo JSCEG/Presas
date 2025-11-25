@@ -9104,6 +9104,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     currentMapTitle = mapConfig.name; // Update the current map title
                     updateMapTitleDisplay(currentMapTitle);
 
+                    // Resetear estado de análisis móvil si existe
+                    if (window.mobileInterface && typeof window.mobileInterface.resetAnalysis === 'function') {
+                        window.mobileInterface.resetAnalysis();
+                    }
+
                     if (mapDescriptionEl) {
                         const titleEl = document.getElementById('map-description-title');
                         const contentEl = document.getElementById('map-description-content');

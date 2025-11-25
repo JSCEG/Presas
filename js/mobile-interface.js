@@ -13,6 +13,7 @@ class MobileInterface {
         this.isBottomSheetExpanded = false;
         this.touchStartY = 0;
         this.currentBottomSheetY = 0;
+        this.isAnalysisActive = false;
 
         this.init();
     }
@@ -625,16 +626,20 @@ class MobileInterface {
     syncMapInfo() {
         // Sincronizar información del mapa desde el desktop
         const observer = new MutationObserver(() => {
+            // Si estamos mostrando análisis personalizado, no sincronizar para evitar sobrescribir
+            if (this.isAnalysisActive) return;
+
             const desktopTitle = document.getElementById('map-description-title');
             const desktopContent = document.getElementById('map-description-content');
             const mobileTitle = document.getElementById('mobile-map-description-title');
             const mobileContent = document.getElementById('mobile-map-description-content');
 
             if (desktopTitle && mobileTitle) {
-                mobileTitle.textContent = desktopTitle.textContent;
+                mobileTitle.innerHTML = desktopTitle.innerHTML;
             }
             if (desktopContent && mobileContent) {
-                mobileContent.textContent = desktopContent.textContent;
+                // Usar innerHTML para preservar el formato HTML
+                mobileContent.innerHTML = desktopContent.innerHTML;
             }
         });
 
@@ -734,7 +739,13 @@ class MobileInterface {
         checkLayers();
     }
 
+    resetAnalysis() {
+        this.isAnalysisActive = false;
+        // Opcional: Limpiar el contenido del tab de info o restaurar el original si se guardó
+    }
+
     showAnalysisInBottomSheet(analysisData) {
+        this.isAnalysisActive = true;
         const infoTab = document.querySelector('.bottom-sheet-tab-content[data-content="info"]');
         if (!infoTab) return;
 

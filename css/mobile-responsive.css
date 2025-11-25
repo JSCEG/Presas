@@ -69,6 +69,132 @@
         width: 60px;
     }
 
+    /* ========================================
+       CONTROLES FLOTANTES
+       ======================================== */
+
+    /* Botón de menú (Hamburguesa) */
+    .mobile-menu-btn {
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 1200;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: white;
+        border: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: #333;
+        cursor: pointer;
+    }
+
+    /* Botón de búsqueda (Pill shape) */
+    .mobile-search-btn {
+        position: fixed;
+        top: 1rem;
+        left: 3.5rem;
+        right: 3.5rem;
+        z-index: 1200;
+        height: 40px;
+        background: white;
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        padding: 0 1rem;
+        gap: 0.5rem;
+        color: #666;
+        font-size: 0.9rem;
+        cursor: pointer;
+    }
+
+    /* Botones de acción (Top Right) */
+    .mobile-action-buttons {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 1200;
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .mobile-action-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: white;
+        border: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        color: #333;
+        cursor: pointer;
+    }
+
+    .mobile-action-btn.primary {
+        background: var(--color-gobmx-verde);
+        color: white;
+    }
+
+    /* Botón de capas (Bottom Left) */
+    .mobile-layers-btn {
+        position: fixed;
+        bottom: 12rem;
+        /* Ajustado para no chocar con el bottom sheet */
+        left: 1rem;
+        z-index: 1150;
+        background: white;
+        border: none;
+        border-radius: 4px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+    }
+
+    .mobile-layers-btn i {
+        font-size: 1.2rem;
+        color: #333;
+    }
+
+    .mobile-layers-btn span {
+        display: none;
+    }
+
+    /* Botón de ubicación (Bottom Right) */
+    .mobile-location-btn {
+        position: fixed;
+        bottom: 12rem;
+        /* Ajustado para no chocar con el bottom sheet */
+        right: 1rem;
+        z-index: 1150;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: white;
+        border: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: #333;
+        cursor: pointer;
+    }
+
     /* Contenido principal a pantalla completa */
     .page-content {
         position: fixed;
@@ -99,7 +225,6 @@
     .map-card {
         border-radius: 0;
         box-shadow: none;
-        height: 100vh;
         height: 100dvh;
         display: flex;
         flex-direction: column;
@@ -132,6 +257,7 @@
         left: 0;
         right: 0;
         bottom: 0;
+        z-index: 1;
     }
 
     /* Ocultar descripción y footer en móviles */
@@ -143,257 +269,89 @@
     }
 
     /* ========================================
-       CONTROLES FLOTANTES ESTILO GOOGLE MAPS
+       BOTTOM SHEET (Panel Inferior)
        ======================================== */
-
-    /* Botón de menú hamburguesa (top-left) */
-    .mobile-menu-btn {
-        position: fixed;
-        top: 1rem;
-        left: 1rem;
-        z-index: 1200;
-        width: 48px;
-        height: 48px;
-        background: white;
-        border: none;
-        border-radius: 50%;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .mobile-menu-btn:active {
-        transform: scale(0.95);
-    }
-
-    .mobile-menu-btn i {
-        font-size: 20px;
-        color: #333;
-    }
-
-    /* Botón de búsqueda (top-center) */
-    .mobile-search-btn {
-        position: fixed;
-        top: 1rem;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 1200;
-        background: white;
-        border: none;
-        border-radius: 24px;
-        padding: 0.75rem 1.5rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        cursor: pointer;
-        min-width: 200px;
-    }
-
-    .mobile-search-btn i {
-        color: #666;
-        font-size: 18px;
-    }
-
-    .mobile-search-btn span {
-        color: #999;
-        font-size: 14px;
-        flex: 1;
-        text-align: left;
-    }
-
-    /* Botones de acción flotantes (right side) */
-    .mobile-action-buttons {
-        position: fixed;
-        right: 1rem;
-        top: 1rem;
-        z-index: 1200;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .mobile-action-btn {
-        width: 48px;
-        height: 48px;
-        background: white;
-        border: none;
-        border-radius: 50%;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .mobile-action-btn:active {
-        transform: scale(0.95);
-    }
-
-    .mobile-action-btn i {
-        font-size: 20px;
-        color: #333;
-    }
-
-    .mobile-action-btn.primary {
-        background: var(--color-gobmx-guinda);
-    }
-
-    .mobile-action-btn.primary i {
-        color: white;
-    }
-
-    /* Botón de ubicación (bottom-right) */
-    .mobile-location-btn {
-        position: fixed;
-        bottom: 10rem;
-        right: 1rem;
-        z-index: 1200;
-        width: 48px;
-        height: 48px;
-        background: white;
-        border: none;
-        border-radius: 50%;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-    }
-
-    .mobile-location-btn i {
-        font-size: 20px;
-        color: #333;
-    }
-
-    /* Botón de capas (bottom-left) - Estilo Google Maps */
-    .mobile-layers-btn {
-        position: fixed;
-        bottom: 10rem;
-        left: 1rem;
-        z-index: 1200;
-        background: white;
-        border: none;
-        border-radius: 24px;
-        padding: 0.75rem 1.25rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: #333;
-    }
-
-    .mobile-layers-btn:active {
-        transform: scale(0.95);
-    }
-
-    .mobile-layers-btn i {
-        font-size: 18px;
-        color: #333;
-    }
-
-    /* ========================================
-       PANEL DESLIZABLE INFERIOR (Bottom Sheet)
-       ======================================== */
-
     .mobile-bottom-sheet {
         position: fixed;
-        bottom: 0;
         left: 0;
         right: 0;
-        z-index: 1150;
+        bottom: 0;
         background: white;
-        border-radius: 20px 20px 0 0;
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
-        transform: translateY(calc(100% - 80px));
+        z-index: 1200;
+        border-top-left-radius: 16px;
+        border-top-right-radius: 16px;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        max-height: 85vh;
         display: flex;
         flex-direction: column;
+        max-height: 85vh;
+    }
+
+    .mobile-bottom-sheet.collapsed {
+        transform: translateY(calc(100% - 160px));
+        /* Mostrar más contenido en colapsado */
     }
 
     .mobile-bottom-sheet.expanded {
         transform: translateY(0);
+        height: 85vh;
     }
 
-    .mobile-bottom-sheet.collapsed {
-        transform: translateY(calc(100% - 80px));
-    }
-
-    .mobile-bottom-sheet.hidden {
-        transform: translateY(100%);
-    }
-
-    /* Handle del bottom sheet */
     .bottom-sheet-handle {
+        width: 100%;
+        height: 24px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: grab;
+    }
+
+    .bottom-sheet-handle::after {
+        content: '';
         width: 40px;
         height: 4px;
         background: #ddd;
         border-radius: 2px;
-        margin: 12px auto 8px;
-        cursor: grab;
     }
 
-    .bottom-sheet-handle:active {
-        cursor: grabbing;
-    }
-
-    /* Header del bottom sheet */
     .bottom-sheet-header {
-        padding: 0 1.5rem 1rem;
+        padding: 0 1rem 1rem 1rem;
         border-bottom: 1px solid #eee;
     }
 
     .bottom-sheet-title {
         font-size: 1.1rem;
         font-weight: 700;
-        color: var(--color-gobmx-verde);
-        margin: 0 0 0.5rem 0;
+        margin: 0;
+        color: #333;
     }
 
     .bottom-sheet-subtitle {
         font-size: 0.85rem;
         color: #666;
-        margin: 0;
+        margin: 0.25rem 0 0 0;
     }
 
-    /* Contenido del bottom sheet */
-    .bottom-sheet-content {
-        flex: 1;
-        overflow-y: auto;
-        padding: 1.5rem;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    /* Tabs en el bottom sheet */
     .bottom-sheet-tabs {
         display: flex;
-        gap: 0.5rem;
-        padding: 0 1.5rem;
         border-bottom: 1px solid #eee;
         overflow-x: auto;
+        white-space: nowrap;
         -webkit-overflow-scrolling: touch;
     }
 
     .bottom-sheet-tab {
-        padding: 0.75rem 1rem;
+        flex: 1;
+        padding: 1rem;
         background: none;
         border: none;
-        border-bottom: 2px solid transparent;
-        color: #666;
         font-size: 0.9rem;
         font-weight: 600;
+        color: #666;
         cursor: pointer;
-        white-space: nowrap;
-        transition: all 0.2s ease;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s;
+        min-width: fit-content;
     }
 
     .bottom-sheet-tab.active {
@@ -401,7 +359,15 @@
         border-bottom-color: var(--color-gobmx-guinda);
     }
 
-    /* Controles dentro del bottom sheet */
+    .bottom-sheet-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+        padding-bottom: 5rem;
+        /* Espacio extra para scroll */
+    }
+
+    /* Estilos para controles dentro del bottom sheet */
     .bottom-sheet-controls {
         display: flex;
         flex-direction: column;
@@ -415,11 +381,9 @@
     }
 
     .bottom-sheet-control-group label {
-        font-size: 0.85rem;
+        font-size: 0.9rem;
         font-weight: 600;
         color: #333;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
     }
 
     .bottom-sheet-control-group select,
@@ -429,37 +393,7 @@
         border: 1px solid #ddd;
         border-radius: 8px;
         font-size: 1rem;
-        background: white;
-    }
-
-    /* Lista de resultados en el bottom sheet */
-    .bottom-sheet-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .bottom-sheet-list-item {
-        padding: 1rem;
         background: #f8f9fa;
-        border-radius: 12px;
-        cursor: pointer;
-        transition: background 0.2s ease;
-    }
-
-    .bottom-sheet-list-item:active {
-        background: #e9ecef;
-    }
-
-    .bottom-sheet-list-item-title {
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 0.25rem;
-    }
-
-    .bottom-sheet-list-item-subtitle {
-        font-size: 0.85rem;
-        color: #666;
     }
 
     /* ========================================
@@ -546,6 +480,37 @@
         letter-spacing: 0.1em;
         color: var(--color-gobmx-guinda);
         margin-bottom: 1rem;
+    }
+
+    .bottom-sheet-list {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .bottom-sheet-list-item {
+        padding: 1rem 0;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+    }
+
+    .bottom-sheet-list-item:last-child {
+        border-bottom: none;
+    }
+
+    .bottom-sheet-list-item-title {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .bottom-sheet-list-item-subtitle {
+        font-size: 0.85rem;
+        color: #666;
+        padding-left: 1.5rem;
+        /* Indent to align with text */
     }
 
     /* ========================================
