@@ -413,6 +413,32 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     map.isBasemapActive = false;
 
+    // Función para actualizar clases de zoom en el contenedor del mapa
+    function updateMapZoomClasses() {
+        const zoom = map.getZoom();
+        const container = map.getContainer();
+
+        // Remover clases anteriores
+        container.classList.remove('map-zoom-low', 'map-zoom-mid', 'map-zoom-high');
+
+        // Agregar clase según nivel de zoom
+        if (zoom < 6) {
+            container.classList.add('map-zoom-low');
+        } else if (zoom < 8) {
+            container.classList.add('map-zoom-mid');
+        } else {
+            container.classList.add('map-zoom-high');
+        }
+
+        console.log(`🔍 Zoom actual: ${zoom} - Clase aplicada: ${container.className}`);
+    }
+
+    // Escuchar cambios de zoom
+    map.on('zoomend', updateMapZoomClasses);
+
+    // Inicializar clases
+    map.whenReady(updateMapZoomClasses);
+
     // Configurar fondo blanco si la capa base por defecto es "Ninguno"
     if (defaultBaseKey === 'Ninguno') {
         map.getContainer().style.backgroundColor = 'white';
@@ -5001,20 +5027,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     // Crear popup compacto con selector de radio dinámico
                     const popupContent = `
-                        <div style="font-family: 'Montserrat', sans-serif; min-width: 200px; max-width: 240px;">
-                            <div style="background: linear-gradient(135deg, #601623 0%, #8B1E3F 100%); padding: 6px 10px; margin: -10px -10px 8px -10px; border-radius: 4px 4px 0 0;">
-                                <h4 style="margin: 0; color: white; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px;">
-                                    <i class="bi bi-water" style="font-size: 14px;"></i>
-                                    <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${nombrePresa}</span>
-                                </h4>
+                        <div class="presa-popup-content">
+                            <div class="presa-popup-header">
+                                <i class="bi bi-water presa-popup-icon"></i>
+                                <h4 class="presa-popup-title" title="${nombrePresa}">${nombrePresa}</h4>
                             </div>
-                            ${hasDataLayers ? `
-                                <div style="margin-top: 8px;">
-                                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
-                                        <i class="bi bi-bullseye" style="color: #601623; font-size: 12px;"></i>
+                            <div class="presa-popup-body">
+                                ${hasDataLayers ? `
+                                    <div class="presa-popup-control">
+                                        <i class="bi bi-bullseye"></i>
                                         <select id="radio-select-${presaId}" 
-                                                onchange="window.updateRadiusPreview(this.value, ${feature.geometry.coordinates[1]}, ${feature.geometry.coordinates[0]})"
-                                                style="flex: 1; padding: 4px 6px; border: 1px solid #ddd; border-radius: 3px; font-size: 11px; background: white; cursor: pointer;">
+                                                class="presa-popup-select"
+                                                onchange="window.updateRadiusPreview(this.value, ${feature.geometry.coordinates[1]}, ${feature.geometry.coordinates[0]})">
                                             <option value="5">Radio: 5 km</option>
                                             <option value="10" selected>Radio: 10 km</option>
                                             <option value="15">Radio: 15 km</option>
@@ -5023,12 +5047,12 @@ document.addEventListener('DOMContentLoaded', function () {
                                             <option value="50">Radio: 50 km</option>
                                         </select>
                                     </div>
-                                    <button onclick="(function() { try { console.log('🔘 INICIO botón'); const popup = document.querySelector('.leaflet-popup-content'); console.log('popup:', popup); const select = popup ? popup.querySelector('select[id^=\\'radio-select-\\']') : null; console.log('select:', select); const radio = select ? select.value : 10; console.log('🔘 Radio capturado:', radio, 'tipo:', typeof radio); if (typeof window.analyzePresaClick !== 'function') { console.error('❌ window.analyzePresaClick NO existe'); return; } console.log('✅ Llamando window.analyzePresaClick'); window.analyzePresaClick('${nombrePresa.replace(/'/g, "\\'")}', ${feature.geometry.coordinates[1]}, ${feature.geometry.coordinates[0]}, radio); } catch(e) { console.error('❌ ERROR en botón:', e); } })()" style="width: 100%; padding: 6px 8px; background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%); color: white; border: none; border-radius: 3px; cursor: pointer; font-weight: 600; font-size: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                                    <button onclick="(function() { try { console.log('🔘 INICIO botón'); const popup = document.querySelector('.leaflet-popup-content'); console.log('popup:', popup); const select = popup ? popup.querySelector('select[id^=\\'radio-select-\\']') : null; console.log('select:', select); const radio = select ? select.value : 10; console.log('🔘 Radio capturado:', radio, 'tipo:', typeof radio); if (typeof window.analyzePresaClick !== 'function') { console.error('❌ window.analyzePresaClick NO existe'); return; } console.log('✅ Llamando window.analyzePresaClick'); window.analyzePresaClick('${nombrePresa.replace(/'/g, "\\'")}', ${feature.geometry.coordinates[1]}, ${feature.geometry.coordinates[0]}, radio); } catch(e) { console.error('❌ ERROR en botón:', e); } })()" class="presa-popup-btn">
                                         <i class="bi bi-search"></i>
                                         <span>Analizar Recursos</span>
                                     </button>
-                                </div>
-                            ` : ''}
+                                ` : ''}
+                            </div>
                         </div>
                     `;
 

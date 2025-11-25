@@ -599,9 +599,7 @@
        ======================================== */
 
     /* Mover controles de zoom a la derecha */
-    .leaflet-top.leaflet-left {
-        display: none;
-    }
+    .leaflet-top.leaflet-left, .leaflet-top.leaflet-right { display: none !important; }
 
     .leaflet-bottom.leaflet-right {
         bottom: 100px;
@@ -715,3 +713,176 @@
         animation: fadeIn 0.3s ease;
     }
 }
+/* ========================================
+   ESTILOS PARA POPUPS DE PRESAS
+   ======================================== */
+.presa-popup-compact .leaflet-popup-content-wrapper {
+    padding: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.presa-popup-compact .leaflet-popup-content {
+    margin: 0;
+    width: 260px !important;
+}
+
+.presa-popup-compact .leaflet-popup-tip {
+    background: white;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.presa-popup-header {
+    background: linear-gradient(135deg, #691C32 0%, #9F2241 100%);
+    padding: 12px 16px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.presa-popup-icon { font-size: 16px; opacity: 0.9; color: white !important; }
+
+.presa-popup-title { margin: 0; font-size: 14px; font-weight: 600; letter-spacing: 0.3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; color: white !important; }
+
+.presa-popup-body {
+    padding: 16px;
+    background: white;
+}
+
+.presa-popup-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.presa-popup-control i {
+    color: #691C32;
+    font-size: 14px;
+}
+
+.presa-popup-select {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #495057;
+    background: white;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.presa-popup-select:focus {
+    border-color: #691C32;
+}
+
+.presa-popup-btn {
+    width: 100%;
+    padding: 10px 16px;
+    background: #10312B; /* Verde institucional oscuro */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.presa-popup-btn:hover {
+    background: #0C2621;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.presa-popup-btn:active {
+    transform: translateY(0);
+}
+
+/* Ajuste para el botón de cerrar del popup */
+.presa-popup-compact .leaflet-popup-close-button {
+    color: white !important;
+    top: 12px !important;
+    right: 12px !important;
+    font-size: 18px !important;
+    text-shadow: none !important;
+    opacity: 0.8;
+}
+
+.presa-popup-compact .leaflet-popup-close-button:hover {
+    opacity: 1;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+}
+
+
+
+/* ========================================
+   ESCALADO DE ICONOS SEGÚN ZOOM
+   ======================================== */
+
+/* Transiciones suaves para el cambio de tamaño */
+.custom-presa-icon img,
+.custom-presa-icon div {
+    transition: all 0.3s ease;
+}
+
+/* Zoom bajo (alejado): Iconos muy pequeños */
+.map-zoom-low .custom-presa-icon img {
+    width: 20px !important;
+    height: 20px !important;
+}
+
+.map-zoom-low .custom-presa-icon div {
+    width: 16px !important;
+    height: 16px !important;
+    top: 2px !important;
+    left: 2px !important;
+    border-width: 1px !important;
+}
+
+.map-zoom-low .custom-presa-icon div span {
+    font-size: 10px !important;
+}
+
+/* Zoom medio: Iconos medianos */
+.map-zoom-mid .custom-presa-icon img {
+    width: 30px !important;
+    height: 30px !important;
+}
+
+.map-zoom-mid .custom-presa-icon div {
+    width: 24px !important;
+    height: 24px !important;
+    top: 3px !important;
+    left: 3px !important;
+    border-width: 2px !important;
+}
+
+.map-zoom-mid .custom-presa-icon div span {
+    font-size: 15px !important;
+}
+
+
+
+
+/* Fix for popup overflow */
+.presa-popup-content,
+.presa-popup-content * {
+    box-sizing: border-box;
+}
+

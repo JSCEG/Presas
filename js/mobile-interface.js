@@ -306,13 +306,6 @@ class MobileInterface {
                                 Optimizado para documentos
                             </div>
                         </div>
-                        <div class="bottom-sheet-list-item" data-action="fullscreen">
-                            <div class="bottom-sheet-list-item-title">
-                                <i class="bi bi-arrows-fullscreen"></i> Pantalla completa
-                            </div>
-                            <div class="bottom-sheet-list-item-subtitle">
-                                Ver mapa a pantalla completa
-                            </div>
                         </div>
                     </div>
                 </div>
