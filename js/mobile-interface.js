@@ -734,6 +734,63 @@ class MobileInterface {
         checkLayers();
     }
 
+    showAnalysisInBottomSheet(analysisData) {
+        const infoTab = document.querySelector('.bottom-sheet-tab-content[data-content="info"]');
+        if (!infoTab) return;
+
+        const { presaNombre, radioKm, totalLocalidades, poblacionTotal, hogaresIndigenas,
+            poblacionAfro, sitiosRamsar, distanciaRioUsumacinta } = analysisData;
+
+        let html = '<div style="padding: 0; font-family: Montserrat, sans-serif;">';
+        html += '<div style="background: linear-gradient(135deg, #601623 0%, #8B1E3F 100%); padding: 15px; margin: 0 0 15px 0;">';
+        html += '<h3 style="margin: 0; color: white; font-size: 14px; font-weight: 700;"><i class="bi bi-graph-up"></i> Análisis Espacial</h3>';
+        html += '<p style="margin: 5px 0 0 0; color: rgba(255,255,255,0.9); font-size: 12px;">' + presaNombre + ' • Radio: ' + radioKm + ' km</p>';
+        html += '</div><div style="padding: 0 15px 15px 15px;">';
+
+        if (totalLocalidades > 0) {
+            html += '<div style="margin-bottom: 15px;"><h4 style="margin: 0 0 10px 0; color: #FFA726; font-size: 13px; font-weight: 700; border-bottom: 2px solid #FFA726; padding-bottom: 5px;"><i class="bi bi-people-fill"></i> Localidades Indígenas</h4>';
+            html += '<table style="width: 100%; border-collapse: collapse; font-size: 12px;">';
+            html += '<tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px 0; color: #666;">Total Localidades:</td><td style="padding: 8px 0; text-align: right; font-weight: 700; color: #FFA726;">' + totalLocalidades + '</td></tr>';
+            html += '<tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px 0; color: #666;">Población Total:</td><td style="padding: 8px 0; text-align: right; font-weight: 700; color: #FFA726;">' + poblacionTotal.toLocaleString('es-MX') + '</td></tr>';
+            html += '<tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px 0; color: #666;">Hogares Indígenas:</td><td style="padding: 8px 0; text-align: right; font-weight: 700; color: #FFA726;">' + hogaresIndigenas.toLocaleString('es-MX') + '</td></tr>';
+            if (poblacionAfro > 0) {
+                html += '<tr><td style="padding: 8px 0; color: #666;">Población Afro:</td><td style="padding: 8px 0; text-align: right; font-weight: 700; color: #6A1B9A;">' + poblacionAfro.toLocaleString('es-MX') + '</td></tr>';
+            }
+            html += '</table></div>';
+        }
+
+        if (sitiosRamsar && sitiosRamsar.length > 0) {
+            html += '<div style="margin-bottom: 15px;"><h4 style="margin: 0 0 10px 0; color: #4CAF50; font-size: 13px; font-weight: 700; border-bottom: 2px solid #4CAF50; padding-bottom: 5px;"><i class="bi bi-tree-fill"></i> Sitios Ramsar (' + sitiosRamsar.length + ')</h4>';
+            sitiosRamsar.forEach(ramsar => {
+                const borderColor = ramsar.intersecta ? '#4CAF50' : '#FFA726';
+                const distColor = ramsar.intersecta ? '#4CAF50' : '#FFA726';
+                const distText = ramsar.intersecta ? 'DENTRO del sitio' : (ramsar.distancia / 1000).toFixed(2) + ' km';
+                html += '<div style="background: #f5f5f5; padding: 10px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid ' + borderColor + ';">';
+                html += '<div style="font-weight: 600; color: #333; font-size: 12px; margin-bottom: 4px;">' + ramsar.nombre + '</div>';
+                html += '<table style="width: 100%; font-size: 11px;">';
+                html += '<tr><td style="padding: 2px 0; color: #666;">Ubicación:</td><td style="padding: 2px 0; text-align: right; color: #333;">' + ramsar.estado + '</td></tr>';
+                html += '<tr><td style="padding: 2px 0; color: #666;">Municipios:</td><td style="padding: 2px 0; text-align: right; color: #333;">' + ramsar.municipios + '</td></tr>';
+                html += '<tr><td style="padding: 2px 0; color: #666;">Distancia:</td><td style="padding: 2px 0; text-align: right; font-weight: 600; color: ' + distColor + ';">' + distText + '</td></tr>';
+                html += '</table></div>';
+            });
+            html += '</div>';
+        }
+
+        if (distanciaRioUsumacinta !== null) {
+            html += '<div style="margin-bottom: 15px;"><h4 style="margin: 0 0 10px 0; color: #0288D1; font-size: 13px; font-weight: 700; border-bottom: 2px solid #0288D1; padding-bottom: 5px;"><i class="bi bi-water"></i> Río Usumacinta</h4>';
+            html += '<table style="width: 100%; border-collapse: collapse; font-size: 12px;"><tr><td style="padding: 8px 0; color: #666;">Distancia al río:</td><td style="padding: 8px 0; text-align: right; font-weight: 700; color: #0288D1; font-size: 16px;">' + (distanciaRioUsumacinta / 1000).toFixed(2) + ' km</td></tr></table></div>';
+        }
+
+        if (totalLocalidades === 0 && (!sitiosRamsar || sitiosRamsar.length === 0) && distanciaRioUsumacinta === null) {
+            html += '<div style="text-align: center; padding: 40px 20px; color: #999;"><i class="bi bi-info-circle" style="font-size: 48px; display: block; margin-bottom: 15px; opacity: 0.5;"></i><p style="margin: 0; font-size: 13px;">No se encontraron recursos en el radio de búsqueda</p></div>';
+        }
+
+        html += '</div></div>';
+        infoTab.innerHTML = html;
+        this.expandBottomSheet();
+        this.switchBottomSheetTab('info');
+    }
+
     removeMobileElements() {
         document.querySelectorAll('.mobile-menu-btn, .mobile-search-btn, .mobile-action-buttons, .mobile-layers-btn, .mobile-location-btn, .mobile-bottom-sheet, .mobile-side-drawer, .mobile-drawer-overlay, .mobile-search-modal, .mobile-map-legend').forEach(el => {
             el.remove();

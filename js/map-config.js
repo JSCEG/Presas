@@ -1044,12 +1044,12 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     // Presas data - Análisis espacial
-    let presasDataLayers = {}; // Store data layers (localidades indígenas, etc.)
+    var presasDataLayers = {}; // Store data layers (localidades indígenas, etc.)
     let presasAnalysisLayer = null; // Layer para análisis espacial (círculos, localidades cercanas)
     let currentPresaSelected = null; // Presa actualmente seleccionada
     let currentSearchRadius = 10000; // Radio de búsqueda en metros (default 10km)
     let radiusControl = null; // Control del slider de radio
-    
+
     // EXPONER currentSearchRadius como variable global para que window.analyzePresaClick pueda actualizarla
     window.currentSearchRadius = currentSearchRadius;
 
@@ -1099,14 +1099,14 @@ document.addEventListener('DOMContentLoaded', function () {
         if (preloader) {
             console.log(`🔄 togglePreloader principal: ${show ? 'MOSTRANDO' : 'OCULTANDO'}`);
             preloader.classList.toggle('hidden', !show);
-            
+
             if (!show) {
                 preloader.style.display = 'none';
             } else {
                 preloader.style.display = 'flex';
             }
         }
-        
+
         // Preloader del mapa (visible en pantalla completa)
         const mapPreloader = document.getElementById('map-preloader');
         if (mapPreloader) {
@@ -2530,7 +2530,7 @@ document.addEventListener('DOMContentLoaded', function () {
         pibLegendControl.onAdd = function (map) {
             const div = L.DomUtil.create('div', 'info legend conservation-legend');
             div.innerHTML = '<strong style="display: block; margin-bottom: 10px; font-size: 13px; color: #601623;">CAPAS DE CONSERVACIÓN</strong>';
-            
+
             // Ramsar
             div.innerHTML += `
                 <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 8px;">
@@ -2538,7 +2538,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <span style="font-size: 12px; font-weight: 600; color: #5D4037;">Sitios Ramsar</span>
                 </div>
             `;
-            
+
             // ANP
             div.innerHTML += `
                 <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 8px;">
@@ -2546,7 +2546,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <span style="font-size: 12px; font-weight: 600; color: #388E3C;">Áreas Naturales Protegidas</span>
                 </div>
             `;
-            
+
             // ADVC
             div.innerHTML += `
                 <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 8px;">
@@ -2554,7 +2554,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <span style="font-size: 12px; font-weight: 600; color: #7B1FA2;">Áreas Voluntarias (ADVC)</span>
                 </div>
             `;
-            
+
             // Río Usumacinta
             div.innerHTML += `
                 <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 8px;">
@@ -2562,10 +2562,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     <span style="font-size: 12px; font-weight: 600; color: #0288D1;">Río Usumacinta</span>
                 </div>
             `;
-            
+
             // Separador
             div.innerHTML += `<div style="border-top: 1px solid #ddd; margin: 10px 0;"></div>`;
-            
+
             // Presas
             div.innerHTML += `
                 <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 8px;">
@@ -2573,7 +2573,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <span style="font-size: 12px; font-weight: 600; color: #601623;">Presas Hidroeléctricas</span>
                 </div>
             `;
-            
+
             // Localidades Indígenas
             div.innerHTML += `
                 <div class="legend-item" style="display: flex; align-items: center; margin-bottom: 8px;">
@@ -2581,7 +2581,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <span style="font-size: 12px; font-weight: 600; color: #F57C00;">Localidades Indígenas</span>
                 </div>
             `;
-            
+
             return div;
         };
 
@@ -2614,7 +2614,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     map.createPane('ramsarPane');
                     map.getPane('ramsarPane').style.zIndex = 450; // Encima de ANP y ADVC
                 }
-                
+
                 styleFunction = function (feature) {
                     return {
                         fillColor: '#8D6E63',
@@ -2668,7 +2668,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     map.createPane('anpPane');
                     map.getPane('anpPane').style.zIndex = 410; // Debajo de Ramsar
                 }
-                
+
                 styleFunction = function (feature) {
                     return {
                         fillColor: '#66BB6A',
@@ -2727,7 +2727,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     map.createPane('advcPane');
                     map.getPane('advcPane').style.zIndex = 420; // Entre ANP y Ramsar
                 }
-                
+
                 styleFunction = function (feature) {
                     return {
                         fillColor: '#AB47BC',
@@ -2784,7 +2784,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     map.createPane('rioPane');
                     map.getPane('rioPane').style.zIndex = 460; // Encima de todo
                 }
-                
+
                 styleFunction = function (feature) {
                     return {
                         color: '#0288D1',
@@ -3571,11 +3571,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const mapDescriptionEl = document.getElementById('map-description');
         const titleEl = document.getElementById('map-description-title');
         const contentEl = document.getElementById('map-description-content');
-        
+
         if (!mapDescriptionEl || !titleEl || !contentEl) return;
-        
+
         titleEl.innerHTML = `<i class="bi bi-graph-up-arrow"></i> Análisis Espacial: ${stats.presaNombre}`;
-        
+
         let content = `
             <div style="font-family: var(--font-family-body); line-height: 1.6;">
                 <div style="background: var(--gradient-verde); color: white; padding: var(--spacing-md); border-radius: var(--border-radius-md); margin-bottom: var(--spacing-lg); box-shadow: var(--shadow-soft);">
@@ -3588,7 +3588,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
                 </div>
         `;
-        
+
         // Localidades Indígenas
         if (stats.totalLocalidades > 0) {
             content += `
@@ -3652,7 +3652,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             </thead>
                             <tbody>
             `;
-            
+
             // Agregar cada localidad a la tabla
             stats.localidadesDetalle.forEach((loc, index) => {
                 const rowBg = index % 2 === 0 ? 'var(--color-background)' : 'var(--color-surface)';
@@ -3671,7 +3671,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 </tr>
                 `;
             });
-            
+
             content += `
                             </tbody>
                         </table>
@@ -3684,7 +3684,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
             `;
         }
-        
+
         // Sitios Ramsar
         if (stats.sitiosRamsar.length > 0) {
             content += `
@@ -3694,7 +3694,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     </h4>
                     <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
             `;
-            
+
             stats.sitiosRamsar.forEach((ramsar, index) => {
                 content += `
                     <div style="background: var(--color-background); padding: var(--spacing-md); border-radius: var(--border-radius-md); border-left: 3px solid ${ramsar.intersecta ? '#8D6E63' : '#A1887F'}; box-shadow: var(--shadow-card);">
@@ -3708,10 +3708,10 @@ document.addEventListener('DOMContentLoaded', function () {
                                 </div>
                             </div>
                             <div style="padding: 8px 15px; background: ${ramsar.intersecta ? '#EFEBE9' : '#D7CCC8'}; border-radius: 20px; font-size: var(--font-size-small); font-weight: 600; color: ${ramsar.intersecta ? '#5D4037' : '#4E342E'}; white-space: nowrap;">
-                                ${ramsar.intersecta ? 
-                                    '<i class="bi bi-check-circle-fill"></i> DENTRO' : 
-                                    `<i class="bi bi-rulers"></i> ${(ramsar.distancia/1000).toFixed(2)} km`
-                                }
+                                ${ramsar.intersecta ?
+                        '<i class="bi bi-check-circle-fill"></i> DENTRO' :
+                        `<i class="bi bi-rulers"></i> ${(ramsar.distancia / 1000).toFixed(2)} km`
+                    }
                             </div>
                         </div>
                         <div style="font-size: var(--font-size-small); padding: var(--spacing-sm); background: #FBE9E7; border-radius: var(--border-radius-sm); color: #5D4037;">
@@ -3720,13 +3720,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
                 `;
             });
-            
+
             content += `
                     </div>
                 </div>
             `;
         }
-        
+
         // Áreas Naturales Protegidas
         if (stats.areasNaturales.length > 0) {
             content += `
@@ -3736,7 +3736,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     </h4>
                     <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
             `;
-            
+
             stats.areasNaturales.forEach((anp, index) => {
                 content += `
                     <div style="background: var(--color-background); padding: var(--spacing-md); border-radius: var(--border-radius-md); border-left: 3px solid ${anp.intersecta ? 'var(--color-gobmx-verde)' : 'var(--color-gobmx-dorado)'}; box-shadow: var(--shadow-card);">
@@ -3753,22 +3753,22 @@ document.addEventListener('DOMContentLoaded', function () {
                                 </div>
                             </div>
                             <div style="padding: 8px 15px; background: ${anp.intersecta ? 'var(--color-gobmx-verde-light)' : 'var(--color-gobmx-dorado-light)'}; border-radius: 20px; font-size: var(--font-size-small); font-weight: 600; color: ${anp.intersecta ? 'var(--color-gobmx-verde)' : 'var(--color-gobmx-dorado)'}; white-space: nowrap;">
-                                ${anp.intersecta ? 
-                                    '<i class="bi bi-check-circle-fill"></i> DENTRO' : 
-                                    `<i class="bi bi-rulers"></i> ${(anp.distancia/1000).toFixed(2)} km`
-                                }
+                                ${anp.intersecta ?
+                        '<i class="bi bi-check-circle-fill"></i> DENTRO' :
+                        `<i class="bi bi-rulers"></i> ${(anp.distancia / 1000).toFixed(2)} km`
+                    }
                             </div>
                         </div>
                     </div>
                 `;
             });
-            
+
             content += `
                     </div>
                 </div>
             `;
         }
-        
+
         // Áreas Destinadas Voluntariamente a la Conservación (ADVC)
         if (stats.areasVoluntarias.length > 0) {
             content += `
@@ -3778,7 +3778,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     </h4>
                     <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
             `;
-            
+
             stats.areasVoluntarias.forEach((advc, index) => {
                 content += `
                     <div style="background: var(--color-background); padding: var(--spacing-md); border-radius: var(--border-radius-md); border-left: 3px solid ${advc.intersecta ? '#AB47BC' : '#BA68C8'}; box-shadow: var(--shadow-card);">
@@ -3792,10 +3792,10 @@ document.addEventListener('DOMContentLoaded', function () {
                                 </div>
                             </div>
                             <div style="padding: 8px 15px; background: ${advc.intersecta ? '#F3E5F5' : '#FCE4EC'}; border-radius: 20px; font-size: var(--font-size-small); font-weight: 600; color: ${advc.intersecta ? '#7B1FA2' : '#C2185B'}; white-space: nowrap;">
-                                ${advc.intersecta ? 
-                                    '<i class="bi bi-check-circle-fill"></i> DENTRO' : 
-                                    `<i class="bi bi-rulers"></i> ${(advc.distancia/1000).toFixed(2)} km`
-                                }
+                                ${advc.intersecta ?
+                        '<i class="bi bi-check-circle-fill"></i> DENTRO' :
+                        `<i class="bi bi-rulers"></i> ${(advc.distancia / 1000).toFixed(2)} km`
+                    }
                             </div>
                         </div>
                         <div style="font-size: var(--font-size-small); padding: var(--spacing-sm); background: #F8BBD0; border-radius: var(--border-radius-sm); color: #880E4F;">
@@ -3804,13 +3804,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
                 `;
             });
-            
+
             content += `
                     </div>
                 </div>
             `;
         }
-        
+
         // Río Usumacinta
         if (stats.distanciaRioUsumacinta !== null) {
             content += `
@@ -3823,7 +3823,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             <i class="bi bi-rulers"></i> Distancia más corta a la presa
                         </div>
                         <div style="font-size: 48px; font-weight: 700; color: var(--color-gobmx-guinda); margin-bottom: var(--spacing-sm);">
-                            ${(stats.distanciaRioUsumacinta/1000).toFixed(2)} km
+                            ${(stats.distanciaRioUsumacinta / 1000).toFixed(2)} km
                         </div>
                         <div style="font-size: var(--font-size-small); padding: var(--spacing-sm); background: var(--color-surface); border-radius: var(--border-radius-sm); color: var(--color-text-secondary); margin-top: var(--spacing-md);">
                             <strong><i class="bi bi-info-circle-fill" style="color: var(--color-gobmx-guinda);"></i> Importancia:</strong><br>
@@ -3833,7 +3833,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
             `;
         }
-        
+
         // Mensaje si no hay recursos
         if (stats.totalLocalidades === 0 && stats.sitiosRamsar.length === 0 && stats.distanciaRioUsumacinta === null) {
             content += `
@@ -3849,12 +3849,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
             `;
         }
-        
+
         content += `</div>`;
-        
+
         contentEl.innerHTML = content;
         mapDescriptionEl.style.display = 'block';
-        
+
         // Scroll suave al panel de descripción
         setTimeout(() => {
             mapDescriptionEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -3866,49 +3866,49 @@ document.addEventListener('DOMContentLoaded', function () {
         // MOSTRAR PRELOADER al iniciar análisis
         console.log('🔄 Mostrando preloader para análisis...');
         togglePreloader(true);
-        
+
         // Animar barra de progreso en AMBOS preloaders
         const progressBars = document.querySelectorAll('.progress-fill');
         const progressTexts = document.querySelectorAll('#preloader p, #map-preloader p');
-        
+
         // Función para actualizar todos los preloaders
         const updateProgress = (width, text) => {
             progressBars.forEach(bar => bar.style.width = width);
             progressTexts.forEach(txt => txt.textContent = text);
         };
-        
+
         // Iniciar animación
         updateProgress('0%', 'Iniciando análisis...');
-        
+
         // Animar hasta 30%
         setTimeout(() => {
             updateProgress('30%', 'Procesando localidades indígenas...');
         }, 150);
-        
+
         // Animar hasta 60%
         setTimeout(() => {
             updateProgress('60%', 'Analizando áreas protegidas...');
         }, 300);
-        
+
         // Animar hasta 90%
         setTimeout(() => {
             updateProgress('90%', 'Finalizando análisis...');
         }, 450);
-        
+
         // Dar tiempo al navegador para renderizar el preloader antes de iniciar el análisis pesado
         setTimeout(() => {
             executeAnalysis(presaLatLng, presaNombre);
         }, 100);
     }
-    
+
     // Función auxiliar que ejecuta el análisis real
     function executeAnalysis(presaLatLng, presaNombre) {
         // IMPORTANTE: currentSearchRadius debe estar ya configurado ANTES de llamar esta función
         console.log(`🔍 INICIO analyzePresaResources - currentSearchRadius = ${currentSearchRadius} metros (${currentSearchRadius / 1000} km)`);
-        
+
         // Cerrar todos los popups abiertos
         map.closePopup();
-        
+
         // Limpiar análisis anterior
         if (presasAnalysisLayer) {
             map.removeLayer(presasAnalysisLayer);
@@ -3926,7 +3926,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         console.log(`🔍 Analizando recursos cercanos a: ${presaNombre} (Radio: ${currentSearchRadius / 1000}km)`);
-        
+
         // Centrar mapa en la presa con zoom apropiado para ver el radio
         const zoomLevel = currentSearchRadius <= 20000 ? 10 : (currentSearchRadius <= 50000 ? 9 : 8);
         map.setView(presaLatLng, zoomLevel, {
@@ -3936,7 +3936,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // ⚠️ VERIFICACIÓN CRÍTICA: Valor de currentSearchRadius en este punto
         console.log(`⚠️ CRÍTICO - currentSearchRadius en análisis: ${currentSearchRadius} metros (${currentSearchRadius / 1000} km)`);
-        
+
         // Objeto para almacenar estadísticas del análisis
         const analysisStats = {
             presaNombre: presaNombre,
@@ -3951,7 +3951,7 @@ document.addEventListener('DOMContentLoaded', function () {
             distanciaRioUsumacinta: null,
             localidadesDetalle: [] // Array para almacenar detalle de cada localidad
         };
-        
+
         console.log(`📊 analysisStats.radioKm configurado a: ${analysisStats.radioKm} km`);
 
         // Analizar cada dataLayer
@@ -3959,7 +3959,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const layerData = presasDataLayers[layerType];
             const config = layerData.config;
             const radius = currentSearchRadius; // Usar radio actual
-            
+
             console.log(`🔄 Procesando capa: ${layerType}, usando radius: ${radius} metros (${radius / 1000} km)`);
 
             // Dibujar círculo de búsqueda (solo una vez)
@@ -4027,7 +4027,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 // Si falla al convertir a línea, usar distancia 0 (está dentro o muy cerca)
                                 distance = 0;
                             }
-                            
+
                             nearbyFeatures.push({
                                 feature: feature,
                                 distance: distance,
@@ -4048,7 +4048,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             let minDist = Infinity;
                             feature.geometry.coordinates.forEach(lineCoords => {
                                 const lineFeature = turf.lineString(lineCoords);
-                                const dist = turf.pointToLineDistance(presaPoint, lineFeature, {units: 'meters'});
+                                const dist = turf.pointToLineDistance(presaPoint, lineFeature, { units: 'meters' });
                                 if (dist < minDist) {
                                     minDist = dist;
                                 }
@@ -4057,7 +4057,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         } else {
                             distance = turf.pointToLineDistance(presaPoint, feature, { units: 'meters' });
                         }
-                        
+
                         if (distance <= radius) {
                             nearbyFeatures.push({
                                 feature: feature,
@@ -4180,45 +4180,45 @@ document.addEventListener('DOMContentLoaded', function () {
                     ramsarLayer.addTo(presasAnalysisLayer);
                 });
             }
-            
+
             // Procesar Áreas Naturales Protegidas
             if (layerType === 'anp_analysis') {
                 console.log(`  🌲 Procesando ANP... Features cercanas: ${nearbyFeatures.length}`);
                 if (nearbyFeatures.length > 0) {
-                console.log(`  🌲 ANP encontradas dentro del radio: ${nearbyFeatures.length}`);
-                nearbyFeatures.forEach(item => {
-                    const props = item.feature.properties;
-                    
-                    // Debug: mostrar los campos disponibles
-                    if (nearbyFeatures.indexOf(item) === 0) {
-                        console.log('🔍 Campos disponibles en ANP:', Object.keys(props));
-                        console.log('🔍 Valores:', props);
-                    }
-                    
-                    const anp = {
-                        nombre: props.NOMBRE || props.name || props.nombre || 'Sin nombre',
-                        tipo: props.TIPO || props.tipo || props.tipo_anp || props.TIPO_ANP || 'N/A',
-                        categoria: props.CAT_DEC || props.categoria || props.CATEGORIA || props.cat_manejo || props.CAT_MANEJO || 'N/A',
-                        entidad: props.ENTIDAD || props.entidad || props.ESTADO || props.estado || 'N/A',
-                        municipio: props.MUN_DEC || props.municipio || props.MUNICIPIO || props.municipios || props.MUNICIPIOS || 'N/A',
-                        distancia: item.distance,
-                        intersecta: item.intersects || false
-                    };
-                    analysisStats.areasNaturales.push(anp);
-                    
-                    // Dibujar polígono del ANP
-                    const anpLayer = L.geoJSON(item.feature, {
-                        style: {
-                            fillColor: anp.intersecta ? '#66BB6A' : '#FFA726',
-                            color: anp.intersecta ? '#388E3C' : '#F57C00',
-                            weight: 2,
-                            opacity: 0.8,
-                            fillOpacity: 0.2
+                    console.log(`  🌲 ANP encontradas dentro del radio: ${nearbyFeatures.length}`);
+                    nearbyFeatures.forEach(item => {
+                        const props = item.feature.properties;
+
+                        // Debug: mostrar los campos disponibles
+                        if (nearbyFeatures.indexOf(item) === 0) {
+                            console.log('🔍 Campos disponibles en ANP:', Object.keys(props));
+                            console.log('🔍 Valores:', props);
                         }
-                    });
-                    
-                    // Crear popup para ANP
-                    const anpPopupContent = `
+
+                        const anp = {
+                            nombre: props.NOMBRE || props.name || props.nombre || 'Sin nombre',
+                            tipo: props.TIPO || props.tipo || props.tipo_anp || props.TIPO_ANP || 'N/A',
+                            categoria: props.CAT_DEC || props.categoria || props.CATEGORIA || props.cat_manejo || props.CAT_MANEJO || 'N/A',
+                            entidad: props.ENTIDAD || props.entidad || props.ESTADO || props.estado || 'N/A',
+                            municipio: props.MUN_DEC || props.municipio || props.MUNICIPIO || props.municipios || props.MUNICIPIOS || 'N/A',
+                            distancia: item.distance,
+                            intersecta: item.intersects || false
+                        };
+                        analysisStats.areasNaturales.push(anp);
+
+                        // Dibujar polígono del ANP
+                        const anpLayer = L.geoJSON(item.feature, {
+                            style: {
+                                fillColor: anp.intersecta ? '#66BB6A' : '#FFA726',
+                                color: anp.intersecta ? '#388E3C' : '#F57C00',
+                                weight: 2,
+                                opacity: 0.8,
+                                fillOpacity: 0.2
+                            }
+                        });
+
+                        // Crear popup para ANP
+                        const anpPopupContent = `
                         <div style="font-family: var(--font-family-body); min-width: 220px;">
                             <div style="background: linear-gradient(135deg, #66BB6A 0%, #81C784 100%); padding: 10px; margin: -10px -10px 10px -10px; border-radius: 4px 4px 0 0;">
                                 <h4 style="margin: 0; color: white; font-size: 14px;">
@@ -4238,10 +4238,10 @@ document.addEventListener('DOMContentLoaded', function () {
                             
                             <div style="padding: 8px; background: ${anp.intersecta ? '#E8F5E9' : '#FFF3E0'}; border-radius: 4px; text-align: center;">
                                 <div style="font-weight: 600; font-size: 13px; color: ${anp.intersecta ? '#388E3C' : '#F57C00'};">
-                                    ${anp.intersecta ? 
-                                        '<i class="bi bi-check-circle-fill"></i> DENTRO' : 
-                                        `<i class="bi bi-rulers"></i> ${(anp.distancia/1000).toFixed(2)} km`
-                                    }
+                                    ${anp.intersecta ?
+                                '<i class="bi bi-check-circle-fill"></i> DENTRO' :
+                                `<i class="bi bi-rulers"></i> ${(anp.distancia / 1000).toFixed(2)} km`
+                            }
                                 </div>
                             </div>
                             
@@ -4250,48 +4250,48 @@ document.addEventListener('DOMContentLoaded', function () {
                             </div>
                         </div>
                     `;
-                    
-                    anpLayer.bindPopup(anpPopupContent, {
-                        maxWidth: 250,
-                        className: 'anp-popup'
+
+                        anpLayer.bindPopup(anpPopupContent, {
+                            maxWidth: 250,
+                            className: 'anp-popup'
+                        });
+
+                        anpLayer.addTo(presasAnalysisLayer);
                     });
-                    
-                    anpLayer.addTo(presasAnalysisLayer);
-                });
                 } else {
-                    console.log(`  🌲 No hay ANP dentro del radio de ${currentSearchRadius/1000} km`);
+                    console.log(`  🌲 No hay ANP dentro del radio de ${currentSearchRadius / 1000} km`);
                 }
             }
-            
+
             // Procesar Áreas Destinadas Voluntariamente a la Conservación (ADVC)
             if (layerType === 'advc_analysis') {
                 console.log(`  💜 Procesando ADVC... Features cercanas: ${nearbyFeatures.length}`);
                 if (nearbyFeatures.length > 0) {
-                console.log(`  💜 ADVC encontradas dentro del radio: ${nearbyFeatures.length}`);
-                nearbyFeatures.forEach(item => {
-                    const props = item.feature.properties;
-                    const advc = {
-                        nombre: props.ADVC || props.NOMBRE || props.name || 'Sin nombre',
-                        entidad: props.ESTADO || props.ENTIDAD || 'N/A',
-                        municipio: props.MUNICIPIO || props.MUN_DEC || 'N/A',
-                        distancia: item.distance,
-                        intersecta: item.intersects || false
-                    };
-                    analysisStats.areasVoluntarias.push(advc);
-                    
-                    // Dibujar polígono del ADVC
-                    const advcLayer = L.geoJSON(item.feature, {
-                        style: {
-                            fillColor: advc.intersecta ? '#AB47BC' : '#CE93D8',
-                            color: advc.intersecta ? '#7B1FA2' : '#BA68C8',
-                            weight: 2,
-                            opacity: 0.8,
-                            fillOpacity: 0.2
-                        }
-                    });
-                    
-                    // Crear popup para ADVC
-                    const advcPopupContent = `
+                    console.log(`  💜 ADVC encontradas dentro del radio: ${nearbyFeatures.length}`);
+                    nearbyFeatures.forEach(item => {
+                        const props = item.feature.properties;
+                        const advc = {
+                            nombre: props.ADVC || props.NOMBRE || props.name || 'Sin nombre',
+                            entidad: props.ESTADO || props.ENTIDAD || 'N/A',
+                            municipio: props.MUNICIPIO || props.MUN_DEC || 'N/A',
+                            distancia: item.distance,
+                            intersecta: item.intersects || false
+                        };
+                        analysisStats.areasVoluntarias.push(advc);
+
+                        // Dibujar polígono del ADVC
+                        const advcLayer = L.geoJSON(item.feature, {
+                            style: {
+                                fillColor: advc.intersecta ? '#AB47BC' : '#CE93D8',
+                                color: advc.intersecta ? '#7B1FA2' : '#BA68C8',
+                                weight: 2,
+                                opacity: 0.8,
+                                fillOpacity: 0.2
+                            }
+                        });
+
+                        // Crear popup para ADVC
+                        const advcPopupContent = `
                         <div style="font-family: var(--font-family-body); min-width: 220px;">
                             <div style="background: linear-gradient(135deg, #AB47BC 0%, #BA68C8 100%); padding: 10px; margin: -10px -10px 10px -10px; border-radius: 4px 4px 0 0;">
                                 <h4 style="margin: 0; color: white; font-size: 14px;">
@@ -4308,10 +4308,10 @@ document.addEventListener('DOMContentLoaded', function () {
                             
                             <div style="padding: 8px; background: ${advc.intersecta ? '#F3E5F5' : '#FCE4EC'}; border-radius: 4px; text-align: center;">
                                 <div style="font-weight: 600; font-size: 13px; color: ${advc.intersecta ? '#7B1FA2' : '#C2185B'};">
-                                    ${advc.intersecta ? 
-                                        '<i class="bi bi-check-circle-fill"></i> DENTRO' : 
-                                        `<i class="bi bi-rulers"></i> ${(advc.distancia/1000).toFixed(2)} km`
-                                    }
+                                    ${advc.intersecta ?
+                                '<i class="bi bi-check-circle-fill"></i> DENTRO' :
+                                `<i class="bi bi-rulers"></i> ${(advc.distancia / 1000).toFixed(2)} km`
+                            }
                                 </div>
                             </div>
                             
@@ -4320,16 +4320,16 @@ document.addEventListener('DOMContentLoaded', function () {
                             </div>
                         </div>
                     `;
-                    
-                    advcLayer.bindPopup(advcPopupContent, {
-                        maxWidth: 250,
-                        className: 'advc-popup'
+
+                        advcLayer.bindPopup(advcPopupContent, {
+                            maxWidth: 250,
+                            className: 'advc-popup'
+                        });
+
+                        advcLayer.addTo(presasAnalysisLayer);
                     });
-                    
-                    advcLayer.addTo(presasAnalysisLayer);
-                });
                 } else {
-                    console.log(`  💜 No hay ADVC dentro del radio de ${currentSearchRadius/1000} km`);
+                    console.log(`  💜 No hay ADVC dentro del radio de ${currentSearchRadius / 1000} km`);
                 }
             }
 
@@ -4338,27 +4338,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Calcular distancia al río sin importar el radio (para info)
                 const presaPoint = turf.point([presaLatLng.lng, presaLatLng.lat]);
                 let minDistanceTotal = Infinity;
-                
+
                 layerData.data.features.forEach(rioFeature => {
                     try {
                         let distance;
                         const geomType = rioFeature.geometry.type;
-                        
+
                         if (geomType === 'MultiLineString') {
                             // Para MultiLineString, calcular distancia a cada línea
                             let minDist = Infinity;
                             rioFeature.geometry.coordinates.forEach(lineCoords => {
                                 const lineFeature = turf.lineString(lineCoords);
-                                const dist = turf.pointToLineDistance(presaPoint, lineFeature, {units: 'meters'});
+                                const dist = turf.pointToLineDistance(presaPoint, lineFeature, { units: 'meters' });
                                 if (dist < minDist) {
                                     minDist = dist;
                                 }
                             });
                             distance = minDist;
                         } else {
-                            distance = turf.pointToLineDistance(presaPoint, rioFeature, {units: 'meters'});
+                            distance = turf.pointToLineDistance(presaPoint, rioFeature, { units: 'meters' });
                         }
-                        
+
                         if (distance < minDistanceTotal) {
                             minDistanceTotal = distance;
                         }
@@ -4366,13 +4366,13 @@ document.addEventListener('DOMContentLoaded', function () {
                         console.warn('Error calculando distancia total al río:', e);
                     }
                 });
-                
+
                 // Guardar la distancia total (siempre)
                 if (minDistanceTotal !== Infinity) {
                     analysisStats.distanciaRioUsumacinta = minDistanceTotal;
-                    console.log(`  🌊 Río Usumacinta: ${(minDistanceTotal/1000).toFixed(2)} km (distancia total)`);
+                    console.log(`  🌊 Río Usumacinta: ${(minDistanceTotal / 1000).toFixed(2)} km (distancia total)`);
                 }
-                
+
                 // Dibujar el río solo si está dentro del radio de búsqueda
                 if (nearbyFeatures.length > 0) {
                     const minDistance = Math.min(...nearbyFeatures.map(f => f.distance));
@@ -4380,24 +4380,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     // Dibujar el río con estilo destacado
                     nearbyFeatures.forEach(item => {
-                    const rioLayer = L.geoJSON(item.feature, {
-                        style: {
-                            color: '#0288D1',
-                            weight: 4,
-                            opacity: 0.8
+                        const rioLayer = L.geoJSON(item.feature, {
+                            style: {
+                                color: '#0288D1',
+                                weight: 4,
+                                opacity: 0.8
+                            }
+                        });
+
+                        // Calcular longitud del segmento del río
+                        let longitudKm = 0;
+                        try {
+                            longitudKm = turf.length(item.feature, { units: 'kilometers' }).toFixed(2);
+                        } catch (e) {
+                            console.warn('Error calculando longitud del río:', e);
                         }
-                    });
 
-                    // Calcular longitud del segmento del río
-                    let longitudKm = 0;
-                    try {
-                        longitudKm = turf.length(item.feature, { units: 'kilometers' }).toFixed(2);
-                    } catch (e) {
-                        console.warn('Error calculando longitud del río:', e);
-                    }
-
-                    // Crear popup para el río
-                    const rioPopupContent = `
+                        // Crear popup para el río
+                        const rioPopupContent = `
                         <div style="font-family: 'Montserrat', sans-serif; max-width: 320px;">
                             <div style="background: linear-gradient(135deg, #0288D1 0%, #03A9F4 100%); padding: 12px; margin: -10px -10px 15px -10px; border-radius: 4px 4px 0 0;">
                                 <h4 style="margin: 0; color: white; font-size: 16px;">
@@ -4444,13 +4444,13 @@ document.addEventListener('DOMContentLoaded', function () {
                         </div>
                     `;
 
-                    rioLayer.bindPopup(rioPopupContent, {
-                        maxWidth: 300,
-                        className: 'rio-popup'
-                    });
+                        rioLayer.bindPopup(rioPopupContent, {
+                            maxWidth: 300,
+                            className: 'rio-popup'
+                        });
 
-                    rioLayer.addTo(presasAnalysisLayer);
-                });
+                        rioLayer.addTo(presasAnalysisLayer);
+                    });
                 } // Cierre del if nearbyFeatures.length > 0
             } // Cierre del if usumacinta_analysis
 
@@ -4469,11 +4469,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     analysisStats.poblacionTotal += (props.POBTOTAL || 0);
                     analysisStats.hogaresIndigenas += (props.PIHOGARES || 0);
                     analysisStats.poblacionAfro += (props.POB_AFRO || 0);
-                    
+
                     // Calcular distancia a Ramsar más cercano
                     let ramsarCercano = null;
                     let distanciaRamsarMin = Infinity;
-                    
+
                     // Si hay Ramsar dentro del radio, usar esos
                     if (analysisStats.sitiosRamsar.length > 0) {
                         analysisStats.sitiosRamsar.forEach(ramsar => {
@@ -4486,13 +4486,13 @@ document.addEventListener('DOMContentLoaded', function () {
                         // Si no hay Ramsar en el radio, buscar el más cercano de todos
                         const ramsarData = presasDataLayers['ramsar_analysis'];
                         const localidadPoint = turf.point([coords[0], coords[1]]);
-                        
+
                         ramsarData.data.features.forEach(ramsarFeature => {
                             try {
                                 const distance = turf.pointToLineDistance(
-                                    localidadPoint, 
+                                    localidadPoint,
                                     turf.polygonToLine(ramsarFeature),
-                                    {units: 'meters'}
+                                    { units: 'meters' }
                                 );
                                 if (distance < distanciaRamsarMin) {
                                     distanciaRamsarMin = distance;
@@ -4502,7 +4502,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 // Si falla, intentar con el centroide
                                 try {
                                     const ramsarCentroid = turf.centroid(ramsarFeature);
-                                    const distance = turf.distance(localidadPoint, ramsarCentroid, {units: 'meters'});
+                                    const distance = turf.distance(localidadPoint, ramsarCentroid, { units: 'meters' });
                                     if (distance < distanciaRamsarMin) {
                                         distanciaRamsarMin = distance;
                                         ramsarCercano = ramsarFeature.properties.RAMSAR || ramsarFeature.properties.name || 'Sin nombre';
@@ -4513,11 +4513,11 @@ document.addEventListener('DOMContentLoaded', function () {
                             }
                         });
                     }
-                    
+
                     // Calcular distancia a ANP más cercana (buscar en TODAS las ANP, no solo las del radio)
                     let anpCercana = null;
                     let distanciaANPMin = Infinity;
-                    
+
                     // Si hay ANP dentro del radio, usar esas
                     if (analysisStats.areasNaturales.length > 0) {
                         analysisStats.areasNaturales.forEach(anp => {
@@ -4530,13 +4530,13 @@ document.addEventListener('DOMContentLoaded', function () {
                         // Si no hay ANP en el radio, buscar la más cercana de todas
                         const anpData = presasDataLayers['anp_analysis'];
                         const localidadPoint = turf.point([coords[0], coords[1]]);
-                        
+
                         anpData.data.features.forEach(anpFeature => {
                             try {
                                 const distance = turf.pointToLineDistance(
-                                    localidadPoint, 
+                                    localidadPoint,
                                     turf.polygonToLine(anpFeature),
-                                    {units: 'meters'}
+                                    { units: 'meters' }
                                 );
                                 if (distance < distanciaANPMin) {
                                     distanciaANPMin = distance;
@@ -4546,7 +4546,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 // Si falla, intentar con el centroide
                                 try {
                                     const anpCentroid = turf.centroid(anpFeature);
-                                    const distance = turf.distance(localidadPoint, anpCentroid, {units: 'meters'});
+                                    const distance = turf.distance(localidadPoint, anpCentroid, { units: 'meters' });
                                     if (distance < distanciaANPMin) {
                                         distanciaANPMin = distance;
                                         anpCercana = anpFeature.properties.NOMBRE || 'Sin nombre';
@@ -4557,11 +4557,11 @@ document.addEventListener('DOMContentLoaded', function () {
                             }
                         });
                     }
-                    
+
                     // Calcular distancia a ADVC más cercana
                     let advcCercana = null;
                     let distanciaADVCMin = Infinity;
-                    
+
                     // Si hay ADVC dentro del radio, usar esas
                     if (analysisStats.areasVoluntarias.length > 0) {
                         analysisStats.areasVoluntarias.forEach(advc => {
@@ -4574,13 +4574,13 @@ document.addEventListener('DOMContentLoaded', function () {
                         // Si no hay ADVC en el radio, buscar la más cercana de todas
                         const advcData = presasDataLayers['advc_analysis'];
                         const localidadPoint = turf.point([coords[0], coords[1]]);
-                        
+
                         advcData.data.features.forEach(advcFeature => {
                             try {
                                 const distance = turf.pointToLineDistance(
-                                    localidadPoint, 
+                                    localidadPoint,
                                     turf.polygonToLine(advcFeature),
-                                    {units: 'meters'}
+                                    { units: 'meters' }
                                 );
                                 if (distance < distanciaADVCMin) {
                                     distanciaADVCMin = distance;
@@ -4590,7 +4590,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 // Si falla, intentar con el centroide
                                 try {
                                     const advcCentroid = turf.centroid(advcFeature);
-                                    const distance = turf.distance(localidadPoint, advcCentroid, {units: 'meters'});
+                                    const distance = turf.distance(localidadPoint, advcCentroid, { units: 'meters' });
                                     if (distance < distanciaADVCMin) {
                                         distanciaADVCMin = distance;
                                         advcCercana = advcFeature.properties.ADVC || advcFeature.properties.NOMBRE || advcFeature.properties.nombre || 'Sin nombre';
@@ -4601,7 +4601,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             }
                         });
                     }
-                    
+
                     // Calcular distancia al río Usumacinta
                     let distanciaRio = null;
                     if (presasDataLayers['usumacinta_analysis']) {
@@ -4611,22 +4611,22 @@ document.addEventListener('DOMContentLoaded', function () {
                             rioData.data.features.forEach(rioFeature => {
                                 const geomType = rioFeature.geometry.type;
                                 let dist;
-                                
+
                                 if (geomType === 'MultiLineString') {
                                     // Para MultiLineString, calcular distancia a cada línea
                                     let minDist = Infinity;
                                     rioFeature.geometry.coordinates.forEach(lineCoords => {
                                         const lineFeature = turf.lineString(lineCoords);
-                                        const d = turf.pointToLineDistance(localidadPoint, lineFeature, {units: 'kilometers'});
+                                        const d = turf.pointToLineDistance(localidadPoint, lineFeature, { units: 'kilometers' });
                                         if (d < minDist) {
                                             minDist = d;
                                         }
                                     });
                                     dist = minDist;
                                 } else {
-                                    dist = turf.pointToLineDistance(localidadPoint, rioFeature, {units: 'kilometers'});
+                                    dist = turf.pointToLineDistance(localidadPoint, rioFeature, { units: 'kilometers' });
                                 }
-                                
+
                                 if (distanciaRio === null || dist < distanciaRio) {
                                     distanciaRio = dist;
                                 }
@@ -4635,7 +4635,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             console.warn('Error calculando distancia al río desde localidad:', e);
                         }
                     }
-                    
+
                     // Guardar detalle de la localidad
                     analysisStats.localidadesDetalle.push({
                         nombre: props.LOCALIDAD || 'N/A',
@@ -4644,9 +4644,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         poblacion: props.POBTOTAL || 0,
                         hogaresIndigenas: props.PIHOGARES || 0,
                         distanciaPresa: (item.distance / 1000).toFixed(2),
-                        sitioRamsar: ramsarCercano ? `${ramsarCercano} (${(distanciaRamsarMin/1000).toFixed(2)} km)` : null,
-                        areaNatural: anpCercana ? `${anpCercana} (${(distanciaANPMin/1000).toFixed(2)} km)` : null,
-                        areaVoluntaria: advcCercana ? `${advcCercana} (${(distanciaADVCMin/1000).toFixed(2)} km)` : null,
+                        sitioRamsar: ramsarCercano ? `${ramsarCercano} (${(distanciaRamsarMin / 1000).toFixed(2)} km)` : null,
+                        areaNatural: anpCercana ? `${anpCercana} (${(distanciaANPMin / 1000).toFixed(2)} km)` : null,
+                        areaVoluntaria: advcCercana ? `${advcCercana} (${(distanciaADVCMin / 1000).toFixed(2)} km)` : null,
                         distanciaRio: distanciaRio !== null ? `${distanciaRio.toFixed(2)} km` : null
                     });
 
@@ -4751,11 +4751,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (analysisStats.totalLocalidades > 0 || analysisStats.sitiosRamsar.length > 0 || analysisStats.distanciaRioUsumacinta !== null) {
 
-            // Crear panel de resumen flotante
-            const summaryPanel = L.control({ position: 'bottomright' });
-            summaryPanel.onAdd = function () {
-                const div = L.DomUtil.create('div', 'analysis-summary-panel');
-                div.innerHTML = `
+            // Crear panel de resumen flotante (solo en desktop)
+            const isMobile = window.innerWidth < 768;
+            if (!isMobile) {
+                const summaryPanel = L.control({ position: 'bottomright' });
+                summaryPanel.onAdd = function () {
+                    const div = L.DomUtil.create('div', 'analysis-summary-panel');
+                    div.innerHTML = `
                     <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.3); min-width: 300px; max-width: 350px; font-family: 'Montserrat', sans-serif; max-height: 80vh; overflow-y: auto;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                             <h4 style="margin: 0; color: #601623; font-size: 14px;">
@@ -4842,18 +4844,19 @@ document.addEventListener('DOMContentLoaded', function () {
                         ` : ''}
                     </div>
                 `;
-                return div;
-            };
-            summaryPanel.addTo(map);
+                    return div;
+                };
+                summaryPanel.addTo(map);
+            }
         }
-        
+
         // Completar barra de progreso al 100% en AMBOS preloaders
         const progressBars = document.querySelectorAll('.progress-fill');
         const progressTexts = document.querySelectorAll('#preloader p, #map-preloader p');
-        
+
         progressBars.forEach(bar => bar.style.width = '100%');
         progressTexts.forEach(txt => txt.textContent = '¡Análisis completado!');
-        
+
         // OCULTAR AMBOS PRELOADERS después de una breve pausa para mostrar el 100%
         setTimeout(() => {
             togglePreloader(false);
@@ -4864,51 +4867,51 @@ document.addEventListener('DOMContentLoaded', function () {
     // Funciones globales para el popup de presas con radio dinámico
     // FORZAR sobreescritura de cualquier definición previa
     window.radiusPreviewCircle = null;
-    
+
     // ELIMINAR cualquier definición previa
     delete window.analyzePresaClick;
-    
+
     // Definir la función CORRECTA
-    window.analyzePresaClick = function(presaNombre, lat, lng, radius) {
+    window.analyzePresaClick = function (presaNombre, lat, lng, radius) {
         console.log('📥 Parámetros recibidos:', { presaNombre, lat, lng, radius, tipo: typeof radius });
-        
+
         // Convertir radio de km a metros
         const radiusValue = radius ? parseInt(radius) : 10;
         const radiusInMeters = radiusValue * 1000;
-        
+
         // IMPORTANTE: Actualizar AMBAS variables (local y global)
         currentSearchRadius = radiusInMeters;
         window.currentSearchRadius = radiusInMeters;
         currentPresaSelected = { name: presaNombre, latlng: L.latLng(lat, lng) };
-        
+
         console.log(`🎯 Análisis iniciado: ${presaNombre}, Radio seleccionado: ${radiusValue} km (${radiusInMeters} metros)`);
         console.log(`✅ currentSearchRadius (local) actualizado a: ${currentSearchRadius} metros`);
         console.log(`✅ window.currentSearchRadius (global) actualizado a: ${window.currentSearchRadius} metros`);
-        
+
         // Remover círculo de previsualización
         if (window.radiusPreviewCircle) {
             map.removeLayer(window.radiusPreviewCircle);
             window.radiusPreviewCircle = null;
         }
-        
+
         // Cerrar popup
         map.closePopup();
-        
+
         // VERIFICAR valor antes de ejecutar análisis
         console.log(`🚀 Ejecutando análisis con currentSearchRadius = ${currentSearchRadius} metros`);
-        
+
         // Ejecutar análisis
         analyzePresaResources(L.latLng(lat, lng), presaNombre);
     };
-    
+
     console.log('✅ window.analyzePresaClick definida correctamente en map-config.js');
-    
-    window.updateRadiusPreview = function(radiusKm, lat, lng) {
+
+    window.updateRadiusPreview = function (radiusKm, lat, lng) {
         // Remover círculo anterior
         if (window.radiusPreviewCircle) {
             map.removeLayer(window.radiusPreviewCircle);
         }
-        
+
         // Crear nuevo círculo de previsualización
         window.radiusPreviewCircle = L.circle([lat, lng], {
             radius: radiusKm * 1000,
@@ -4919,7 +4922,7 @@ document.addEventListener('DOMContentLoaded', function () {
             dashArray: '5, 5',
             interactive: false
         }).addTo(map);
-        
+
         // Ajustar vista para mostrar el círculo completo
         const circleBounds = window.radiusPreviewCircle.getBounds();
         map.fitBounds(circleBounds, { padding: [50, 50], maxZoom: 10 });
@@ -5034,9 +5037,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         minWidth: 200,
                         className: 'presa-popup-compact'
                     });
-                    
+
                     // Limpiar círculo de previsualización cuando se cierre el popup
-                    layer.on('popupclose', function() {
+                    layer.on('popupclose', function () {
                         if (window.radiusPreviewCircle) {
                             map.removeLayer(window.radiusPreviewCircle);
                             window.radiusPreviewCircle = null;
@@ -9199,11 +9202,11 @@ document.addEventListener('DOMContentLoaded', function () {
                                     }
                                 }
                                 console.log('🟡 Todas las capas adicionales cargadas');
-                                
+
                                 // Agregar leyenda de capas de conservación
                                 addConservationLayersLegend();
                                 console.log('🟡 Leyenda de capas de conservación agregada');
-                                
+
                                 // FORZAR ocultación del preloader después de cargar todo
                                 console.log('🔄 Forzando ocultación final del preloader...');
                                 togglePreloader(false);
