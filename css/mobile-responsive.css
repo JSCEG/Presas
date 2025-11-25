@@ -448,8 +448,9 @@
     /* Header del drawer */
     .mobile-drawer-header {
         padding: 1.5rem;
-        background: var(--gradient-header);
-        color: white;
+        background: white;
+        border-bottom: 1px solid #eee;
+        color: var(--color-gobmx-guinda);
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -459,12 +460,13 @@
         font-size: 1.2rem;
         font-weight: 700;
         margin: 0;
+        color: var(--color-gobmx-guinda);
     }
 
     .mobile-drawer-close {
         background: none;
         border: none;
-        color: white;
+        color: #666;
         font-size: 24px;
         cursor: pointer;
         padding: 0.5rem;
@@ -475,6 +477,27 @@
         flex: 1;
         padding: 1.5rem;
         overflow-y: auto;
+    }
+
+    /* Footer del drawer */
+    .mobile-drawer-footer {
+        padding: 1.5rem;
+        border-top: 1px solid #eee;
+        background: #f8f9fa;
+        margin-top: auto;
+    }
+
+    .drawer-logos {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .drawer-logo {
+        height: 40px;
+        width: auto;
+        object-fit: contain;
     }
 
     .mobile-drawer-section {

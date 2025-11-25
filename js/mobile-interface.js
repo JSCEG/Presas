@@ -329,6 +329,12 @@ class MobileInterface {
                         </div>
                     </div>
                 </div>
+            <div class="mobile-drawer-footer">
+                <div class="drawer-logos">
+                    <img src="img/logo_sener.png" alt="SENER" class="drawer-logo">
+                    <img src="img/snien.png" alt="SNIEn" class="drawer-logo">
+                </div>
+            </div>
             </div>
         `;
 
