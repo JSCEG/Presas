@@ -35,14 +35,12 @@ class MobileInterface {
 
 
 
-        // Crear botones de acción flotantes
-        this.createActionButtons();
+
 
         // Crear botón de capas (bottom-left)
         this.createLayersButton();
 
-        // Crear botón de ubicación
-        this.createLocationButton();
+
 
         // Crear bottom sheet
         this.createBottomSheet();
@@ -56,32 +54,11 @@ class MobileInterface {
 
 
 
-    createActionButtons() {
-        const container = document.createElement('div');
-        container.className = 'mobile-action-buttons';
-
-        // Botón de exportar (único botón arriba a la derecha)
-        const exportBtn = document.createElement('button');
-        exportBtn.className = 'mobile-action-btn primary';
-        exportBtn.innerHTML = '<i class="bi bi-download"></i>';
-        exportBtn.setAttribute('aria-label', 'Exportar mapa');
-        exportBtn.addEventListener('click', () => this.exportMap());
-
-        container.appendChild(exportBtn);
-        document.body.appendChild(container);
-    }
 
 
 
-    createLocationButton() {
-        const btn = document.createElement('button');
-        btn.className = 'mobile-location-btn';
-        btn.innerHTML = '<i class="bi bi-crosshair"></i>';
-        btn.setAttribute('aria-label', 'Mi ubicación');
-        document.body.appendChild(btn);
 
-        btn.addEventListener('click', () => this.centerOnLocation());
-    }
+
 
     createLayersButton() {
         // Botón de menú principal

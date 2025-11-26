@@ -15,7 +15,8 @@
 }
 
 /* Mapa a pantalla completa */
-body, html {
+body,
+html {
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
@@ -82,7 +83,7 @@ body, html {
     border-radius: 50%;
     background: white;
     border: none;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     display: flex !important;
     align-items: center;
     justify-content: center;
@@ -102,7 +103,7 @@ body, html {
     border-radius: 50%;
     background: white;
     border: none;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     display: flex !important;
     align-items: center;
     justify-content: center;
@@ -124,7 +125,7 @@ body, html {
     background: white;
     border: none;
     border-radius: 24px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     padding: 0.75rem 1.25rem;
     display: flex !important;
     align-items: center;
@@ -162,7 +163,7 @@ body, html {
     border-radius: 50%;
     background: white;
     border: none;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -186,7 +187,7 @@ body, html {
     z-index: 1002 !important;
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex !important;
     flex-direction: column;
@@ -319,7 +320,7 @@ body, html {
     z-index: 2000 !important;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     display: flex !important;
     flex-direction: column;
 }
@@ -334,7 +335,7 @@ body, html {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     z-index: 1999 !important;
     opacity: 0;
     visibility: hidden;
@@ -444,7 +445,8 @@ body, html {
 
 /* Ajustes para mejor visualización del análisis */
 .mobile-bottom-sheet.collapsed {
-    transform: translateY(calc(100% - 200px)); /* Más altura en colapsado */
+    transform: translateY(calc(100% - 200px));
+    /* Más altura en colapsado */
 }
 
 /* Mejorar altura del contenido cuando hay análisis activo */
@@ -516,8 +518,9 @@ body, html {
 .mobile-menu-toggle-btn {
     position: fixed !important;
     bottom: 2rem;
-    right: 50%;
-    transform: translateX(50%);
+    left: 1.5rem;
+    right: auto;
+    transform: none;
     z-index: 1100 !important;
     background: var(--color-gobmx-guinda);
     color: white;
@@ -545,7 +548,7 @@ body, html {
 
 /* Ocultar botón cuando el bottom sheet está activo */
 .mobile-menu-toggle-btn.hidden {
-    transform: translateX(50%) translateY(150%);
+    transform: translateY(150%);
     opacity: 0;
     pointer-events: none;
 }
@@ -612,7 +615,8 @@ body, html {
 
 /* Ajustar posición del menú flotante para que aparezca justo encima del botón */
 .mobile-floating-menu {
-    bottom: 5.5rem; /* Justo encima del botón de menú */
+    bottom: 5.5rem;
+    /* Justo encima del botón de menú */
     left: 1rem;
     right: auto;
     transform: translateY(10px);
