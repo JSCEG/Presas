@@ -94,23 +94,7 @@ class MobileInterface {
         document.body.appendChild(container);
     }
 
-    createLayersButton() {
-        // Botón de capas en bottom-left (estilo Google Maps)
-        const btn = document.createElement('button');
-        btn.className = 'mobile-layers-btn';
-        btn.innerHTML = `
-            <i class="bi bi-layers"></i>
-            <span>Capas</span>
-        `;
-        btn.setAttribute('aria-label', 'Capas del mapa');
-        document.body.appendChild(btn);
 
-        btn.addEventListener('click', () => {
-            // Expandir bottom sheet y cambiar al tab de capas
-            this.expandBottomSheet();
-            this.switchBottomSheetTab('layers');
-        });
-    }
 
     createLocationButton() {
         const btn = document.createElement('button');
