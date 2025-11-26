@@ -5141,6 +5141,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
             instrumentLayerGroup.addLayer(presasLayer);
 
+            // Exponer la capa globalmente para el buscador móvil
+            window.presasDataLayers = presasLayer;
+
             console.log(`✅ Presas agregadas a instrumentLayerGroup:`, data.features ? data.features.length : 0, 'presas');
             console.log('🔵 Capas actuales en instrumentLayerGroup:', instrumentLayerGroup.getLayers().length);
 

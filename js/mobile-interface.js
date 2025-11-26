@@ -393,17 +393,21 @@ class MobileInterface {
             let found = false;
             window.presasDataLayers.eachLayer(layer => {
                 if (found) return;
-                if (layer.feature && layer.feature.properties && layer.feature.properties.id === id) {
-                    // Centrar mapa y abrir popup/análisis
-                    window.map.setView(layer.getLatLng(), 14);
-                    layer.fire('click');
-                    found = true;
+                if (layer.feature && layer.feature.properties) {
+                    const props = layer.feature.properties;
+                    // Comparar con id o no (número), usando == para permitir coincidencia string/number
+                    if (props.id == id || props.no == id || props.NO == id) {
+                        // Centrar mapa y abrir popup/análisis
+                        window.map.setView(layer.getLatLng(), 14);
+                        layer.fire('click');
+                        found = true;
 
-                    // Cerrar teclado
-                    document.activeElement.blur();
+                        // Cerrar teclado
+                        document.activeElement.blur();
 
-                    // Colapsar bottom sheet parcialmente para ver el mapa
-                    this.collapseBottomSheet();
+                        // Colapsar bottom sheet parcialmente para ver el mapa
+                        this.collapseBottomSheet();
+                    }
                 }
             });
 
