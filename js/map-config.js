@@ -395,9 +395,22 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    const defaultBaseKey = 'Ninguno';
-    const activeBaseLayer = ningunoBaseLayer;
-    console.log('✅ Listo. Mapa base por defecto: Ninguno');
+    // Determinar mapa base por defecto
+    let defaultBaseKey = 'Ninguno';
+    let activeBaseLayer = ningunoBaseLayer;
+
+    // Verificar si hay una configuración específica de mapa base (ej. desde PRESAS_MAPS)
+    // Esto asume que el primer mapa de PRESAS_MAPS es el activo por defecto
+    if (window.PRESAS_MAPS && window.PRESAS_MAPS.length > 0 && window.PRESAS_MAPS[0].baseMap) {
+        const configBaseMap = window.PRESAS_MAPS[0].baseMap;
+        if (baseLayers[configBaseMap]) {
+            defaultBaseKey = configBaseMap;
+            activeBaseLayer = baseLayers[configBaseMap];
+            console.log(`✅ Mapa base configurado desde PRESAS_MAPS: ${defaultBaseKey}`);
+        }
+    }
+
+    console.log(`✅ Listo. Mapa base activo: ${defaultBaseKey}`);
 
     // Inicializar el mapa
     map = L.map(MAP_CONTAINER_ID, {

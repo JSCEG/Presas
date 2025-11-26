@@ -7,7 +7,7 @@ const PRESAS_MAPS = [
         name: 'Presas y Sitios Ramsar',
         description: 'Visualización de presas y sitios Ramsar en México',
         sheetUrl: null, // Sin hoja de datos por el momento
-        baseMap: 'positron', // Mapa base Positron (Claro)
+        baseMap: 'carto-voyager', // Mapa base Voyager (Colores)
         geojsonUrl: 'https://cdn.sassoapps.com/Mapas/Electricidad/presas.geojson',
         geojsonUrlType: 'presas',
         additionalLayers: [
