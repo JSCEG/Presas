@@ -33,8 +33,7 @@ class MobileInterface {
     createMobileElements() {
 
 
-        // Crear botón de búsqueda
-        this.createSearchButton();
+
 
         // Crear botones de acción flotantes
         this.createActionButtons();
@@ -50,24 +49,12 @@ class MobileInterface {
 
 
 
-        // Crear modal de búsqueda
-        this.createSearchModal();
+
     }
 
 
 
-    createSearchButton() {
-        const btn = document.createElement('button');
-        btn.className = 'mobile-search-btn';
-        btn.innerHTML = `
-            <i class="bi bi-search"></i>
-            <span>Buscar presas...</span>
-        `;
-        btn.setAttribute('aria-label', 'Buscar');
-        document.body.appendChild(btn);
 
-        btn.addEventListener('click', () => this.openSearchModal());
-    }
 
     createActionButtons() {
         const container = document.createElement('div');
@@ -124,6 +111,10 @@ class MobileInterface {
                 <span>Información</span>
             </button>
             <div style="height: 1px; background: #eee; margin: 0.5rem 0;"></div>
+            <button class="mobile-floating-menu-item" data-action="search">
+                <i class="bi bi-search"></i>
+                <span>Buscar</span>
+            </button>
             <button class="mobile-floating-menu-item" data-action="refresh">
                 <i class="bi bi-arrow-clockwise"></i>
                 <span>Actualizar datos</span>
@@ -225,8 +216,8 @@ class MobileInterface {
                             </select>
                         </div>
                         <div class="bottom-sheet-control-group" id="mobile-search-group" style="display: none;">
-                            <label for="mobile-permit-search">Buscar permiso</label>
-                            <input type="text" id="mobile-permit-search" class="control" placeholder="Número de permiso o razón social">
+                            <label for="mobile-permit-search">Buscar Presa</label>
+                            <input type="text" id="mobile-permit-search" class="control" placeholder="ID de presa (1-5) o nombre">
                         </div>
                     </div>
                 </div>
@@ -292,37 +283,7 @@ class MobileInterface {
 
 
 
-    createSearchModal() {
-        const modal = document.createElement('div');
-        modal.className = 'mobile-search-modal';
-        modal.innerHTML = `
-            <div class="mobile-search-header">
-                <button class="mobile-search-back" aria-label="Volver">
-                    <i class="bi bi-arrow-left"></i>
-                </button>
-                <input type="text" class="mobile-search-input" placeholder="Buscar presas..." id="mobile-search-input">
-            </div>
-            <div class="mobile-search-results" id="mobile-search-results">
-                <p style="text-align: center; color: #999; padding: 2rem;">
-                    Escribe para buscar presas...
-                </p>
-            </div>
-        `;
 
-        document.body.appendChild(modal);
-        this.searchModal = modal;
-
-        // Evento para cerrar
-        modal.querySelector('.mobile-search-back').addEventListener('click', () => {
-            this.closeSearchModal();
-        });
-
-        // Evento de búsqueda
-        const searchInput = modal.querySelector('#mobile-search-input');
-        searchInput.addEventListener('input', (e) => {
-            this.handleSearch(e.target.value);
-        });
-    }
 
     setupTouchHandlers() {
         if (!this.bottomSheet) return;
@@ -422,12 +383,65 @@ class MobileInterface {
                 mobileMapSelect.disabled = mainMapSelect.disabled;
             });
         }
+
+
+        // Sincronizar búsqueda y manejar búsqueda por ID
+        const mainSearchInput = document.getElementById('permit-search');
+        const mobileSearchInput = document.getElementById('mobile-permit-search');
+
+        if (mainSearchInput && mobileSearchInput) {
+            mobileSearchInput.addEventListener('input', (e) => {
+                const val = e.target.value;
+
+                // Verificar si es un número del 1 al 5
+                if (/^[1-5]$/.test(val)) {
+                    // Búsqueda por ID de presa
+                    this.searchPresaById(parseInt(val));
+                } else {
+                    // Búsqueda normal (sincronizar con desktop)
+                    mainSearchInput.value = val;
+                    mainSearchInput.dispatchEvent(new Event('input'));
+                }
+            });
+        }
+    }
+
+    searchPresaById(id) {
+        // Mapeo de IDs a nombres o coordenadas de presas
+        // Asumiendo que window.presasDataLayers contiene las capas cargadas
+        if (window.presasDataLayers) {
+            let found = false;
+            window.presasDataLayers.eachLayer(layer => {
+                if (found) return;
+                if (layer.feature && layer.feature.properties && layer.feature.properties.id === id) {
+                    // Centrar mapa y abrir popup/análisis
+                    window.map.setView(layer.getLatLng(), 14);
+                    layer.fire('click');
+                    found = true;
+
+                    // Cerrar teclado
+                    document.activeElement.blur();
+
+                    // Colapsar bottom sheet parcialmente para ver el mapa
+                    this.collapseBottomSheet();
+                }
+            });
+
+            if (!found) {
+                console.log('Presa con ID ' + id + ' no encontrada en las capas cargadas.');
+            }
+        }
     }
 
     expandBottomSheet() {
         this.bottomSheet.classList.remove('collapsed');
         this.bottomSheet.classList.add('expanded');
+        this.bottomSheet.classList.add('active'); // Necesario para que sea visible según CSS
         this.isBottomSheetExpanded = true;
+
+        // Ocultar botón de menú
+        const menuBtn = document.querySelector('.mobile-menu-toggle-btn');
+        if (menuBtn) menuBtn.classList.add('hidden');
     }
 
     collapseBottomSheet() {
@@ -435,6 +449,10 @@ class MobileInterface {
         this.bottomSheet.classList.remove('active'); // Ocultar completamente
         this.bottomSheet.classList.add('collapsed');
         this.isBottomSheetExpanded = false;
+
+        // Mostrar botón de menú
+        const menuBtn = document.querySelector('.mobile-menu-toggle-btn');
+        if (menuBtn) menuBtn.classList.remove('hidden');
     }
 
     toggleBottomSheet() {
@@ -472,22 +490,7 @@ class MobileInterface {
         this.drawerOverlay.classList.remove('active');
     }
 
-    openSearchModal() {
-        this.searchModal.classList.add('active');
-        setTimeout(() => {
-            this.searchModal.querySelector('#mobile-search-input').focus();
-        }, 300);
-    }
 
-    closeSearchModal() {
-        this.searchModal.classList.remove('active');
-        this.searchModal.querySelector('#mobile-search-input').value = '';
-        this.searchModal.querySelector('#mobile-search-results').innerHTML = `
-            <p style="text-align: center; color: #999; padding: 2rem;">
-                Escribe para buscar presas...
-            </p>
-        `;
-    }
 
     handleSearch(query) {
         const resultsContainer = this.searchModal.querySelector('#mobile-search-results');
@@ -576,24 +579,7 @@ class MobileInterface {
             layersContainer.appendChild(legendContainer);
         }
 
-        // 2. Agregar al Side Drawer (Menú Lateral)
-        const drawerLegendsContainer = this.sideDrawer.querySelector('#mobile-drawer-legends');
-        if (drawerLegendsContainer) {
-            // Limpiar mensaje por defecto o leyenda anterior
-            drawerLegendsContainer.innerHTML = '';
 
-            // Crear contenedor para la leyenda (clonado o nuevo)
-            const drawerLegendDiv = document.createElement('div');
-            drawerLegendDiv.className = 'mobile-drawer-legend-content';
-
-            // Usar el mismo HTML limpio
-            let cleanHtml = legendHtml.replace(/width: 22px;/g, 'width: 18px;');
-            cleanHtml = cleanHtml.replace(/font-size: 13px;/g, 'font-size: 14px;');
-
-            drawerLegendDiv.innerHTML = cleanHtml;
-
-            drawerLegendsContainer.appendChild(drawerLegendDiv);
-        }
     }
 
     exportMap() {
@@ -795,6 +781,27 @@ class MobileInterface {
 
     handleMenuAction(action) {
         switch (action) {
+            case 'search':
+                // Abrir tab de controles
+                this.switchBottomSheetTab('controls');
+                this.expandBottomSheet();
+
+                // Asegurar que el contenedor de búsqueda sea visible
+                const searchGroup = document.getElementById('mobile-search-group');
+                if (searchGroup) {
+                    searchGroup.style.display = 'block';
+                }
+
+                // Enfocar input de búsqueda existente
+                setTimeout(() => {
+                    const searchInput = document.getElementById('mobile-permit-search');
+                    if (searchInput) {
+                        searchInput.focus();
+                        // Asegurar que el input sea visible (scroll si es necesario)
+                        searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 300);
+                break;
             case 'refresh':
                 const refreshBtn = document.getElementById('refresh-data');
                 if (refreshBtn) refreshBtn.click();
