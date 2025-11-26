@@ -441,3 +441,58 @@ body, html {
     height: 40px;
     width: auto;
 }
+
+/* Ajustes para mejor visualización del análisis */
+.mobile-bottom-sheet.collapsed {
+    transform: translateY(calc(100% - 200px)); /* Más altura en colapsado */
+}
+
+/* Mejorar altura del contenido cuando hay análisis activo */
+.mobile-bottom-sheet.has-analysis {
+    transform: translateY(calc(100% - 300px));
+}
+
+.mobile-bottom-sheet.has-analysis.expanded {
+    transform: translateY(0);
+    max-height: 90vh;
+}
+
+/* Resaltar tab activo más claramente */
+.bottom-sheet-tab.active {
+    color: var(--color-gobmx-guinda);
+    border-bottom-color: var(--color-gobmx-guinda);
+    border-bottom-width: 3px;
+    font-weight: 700;
+}
+
+/* Asegurar que el contenido del análisis sea visible */
+#mobile-analysis-data {
+    min-height: 200px;
+}
+
+/* Mejorar scroll del contenido */
+.bottom-sheet-content {
+    padding-bottom: 2rem;
+}
+
+/* Asegurar que los tabs siempre sean visibles */
+.bottom-sheet-header {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+}
+
+.bottom-sheet-tabs {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+    flex-shrink: 0;
+}
+
+/* Asegurar que el título y tabs no se colapsen */
+.bottom-sheet-title,
+.bottom-sheet-subtitle {
+    flex-shrink: 0;
+}
