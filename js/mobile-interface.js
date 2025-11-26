@@ -31,8 +31,7 @@ class MobileInterface {
     }
 
     createMobileElements() {
-        // Crear botón de menú hamburguesa
-        this.createMenuButton();
+
 
         // Crear botón de búsqueda
         this.createSearchButton();
@@ -49,22 +48,13 @@ class MobileInterface {
         // Crear bottom sheet
         this.createBottomSheet();
 
-        // Crear side drawer
-        this.createSideDrawer();
+
 
         // Crear modal de búsqueda
         this.createSearchModal();
     }
 
-    createMenuButton() {
-        const btn = document.createElement('button');
-        btn.className = 'mobile-menu-btn';
-        btn.innerHTML = '<i class="bi bi-list"></i>';
-        btn.setAttribute('aria-label', 'Abrir menú');
-        document.body.appendChild(btn);
 
-        btn.addEventListener('click', () => this.toggleSideDrawer());
-    }
 
     createSearchButton() {
         const btn = document.createElement('button');
@@ -107,14 +97,14 @@ class MobileInterface {
     }
 
     createLayersButton() {
-        // Botón de capas que ahora abre un menú flotante
+        // Botón de menú principal
         const btn = document.createElement('button');
-        btn.className = 'mobile-layers-btn';
+        btn.className = 'mobile-menu-toggle-btn';
         btn.innerHTML = `
-            <i class="bi bi-layers"></i>
+            <i class="bi bi-list"></i>
             <span>Menú</span>
         `;
-        btn.setAttribute('aria-label', 'Menú del mapa');
+        btn.setAttribute('aria-label', 'Menú principal');
         document.body.appendChild(btn);
 
         // Crear menú flotante
@@ -133,6 +123,29 @@ class MobileInterface {
                 <i class="bi bi-info-circle"></i>
                 <span>Información</span>
             </button>
+            <div style="height: 1px; background: #eee; margin: 0.5rem 0;"></div>
+            <button class="mobile-floating-menu-item" data-action="refresh">
+                <i class="bi bi-arrow-clockwise"></i>
+                <span>Actualizar datos</span>
+            </button>
+            <button class="mobile-floating-menu-item" data-action="export-word">
+                <i class="bi bi-file-word"></i>
+                <span>Exportar Word</span>
+            </button>
+            <button class="mobile-floating-menu-item" data-action="export-png">
+                <i class="bi bi-download"></i>
+                <span>Exportar PNG</span>
+            </button>
+            <div style="height: 1px; background: #eee; margin: 0.5rem 0;"></div>
+            <button class="mobile-floating-menu-item" data-action="edit-data">
+                <i class="bi bi-pencil-square"></i>
+                <span>Editar datos</span>
+            </button>
+            <button class="mobile-floating-menu-item" data-action="view-data">
+                <i class="bi bi-table"></i>
+                <span>Ver datos</span>
+            </button>
+            <div style="height: 1px; background: #eee; margin: 0.5rem 0;"></div>
             <button class="mobile-floating-menu-item" data-tab="about">
                 <i class="bi bi-book"></i>
                 <span>Acerca de</span>
@@ -154,17 +167,24 @@ class MobileInterface {
         menu.querySelectorAll('.mobile-floating-menu-item').forEach(item => {
             item.addEventListener('click', () => {
                 const tabName = item.getAttribute('data-tab');
+                const action = item.getAttribute('data-action');
 
                 // Ocultar menú
                 menu.classList.remove('active');
 
-                // Expandir bottom sheet y cambiar al tab seleccionado
-                this.bottomSheet.classList.add('active');
-                this.expandBottomSheet();
-                this.switchBottomSheetTab(tabName);
+                if (tabName) {
+                    // Expandir bottom sheet y cambiar al tab seleccionado
+                    this.bottomSheet.classList.add('active');
+                    this.expandBottomSheet();
+                    this.switchBottomSheetTab(tabName);
+                } else if (action) {
+                    this.handleMenuAction(action);
+                }
             });
         });
     }
+
+
 
     createBottomSheet() {
         const sheet = document.createElement('div');
@@ -270,101 +290,7 @@ class MobileInterface {
         this.syncLayers();
     }
 
-    createSideDrawer() {
-        // Crear overlay
-        const overlay = document.createElement('div');
-        overlay.className = 'mobile-drawer-overlay';
-        document.body.appendChild(overlay);
-        this.drawerOverlay = overlay;
 
-        overlay.addEventListener('click', () => this.closeSideDrawer());
-
-        // Crear drawer
-        const drawer = document.createElement('div');
-        drawer.className = 'mobile-side-drawer';
-        drawer.innerHTML = `
-            <div class="mobile-drawer-header">
-                <h2 class="mobile-drawer-title">Menú</h2>
-                <button class="mobile-drawer-close" aria-label="Cerrar menú">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-            <div class="mobile-drawer-content">
-                <div class="mobile-drawer-section">
-                    <h3 class="mobile-drawer-section-title">Acciones</h3>
-                    <div class="bottom-sheet-list">
-                        <div class="bottom-sheet-list-item" data-action="refresh">
-                            <div class="bottom-sheet-list-item-title">
-                                <i class="bi bi-arrow-clockwise"></i> Actualizar datos
-                            </div>
-                            <div class="bottom-sheet-list-item-subtitle">
-                                Recargar información desde Google Sheets
-                            </div>
-                        </div>
-                        <div class="bottom-sheet-list-item" data-action="export-png">
-                            <div class="bottom-sheet-list-item-title">
-                                <i class="bi bi-download"></i> Exportar PNG
-                            </div>
-                            <div class="bottom-sheet-list-item-subtitle">
-                                Descargar mapa como imagen
-                            </div>
-                        </div>
-                        <div class="bottom-sheet-list-item" data-action="export-word">
-                            <div class="bottom-sheet-list-item-title">
-                                <i class="bi bi-file-word"></i> Exportar para Word
-                            </div>
-                            <div class="bottom-sheet-list-item-subtitle">
-                                Optimizado para documentos
-                            </div>
-                        </div>
-                        </div>
-                    </div>
-                    </div>
-                </div>
-                <div class="mobile-drawer-section">
-                    <h3 class="mobile-drawer-section-title">Leyenda</h3>
-                    <div id="mobile-drawer-legends" style="padding: 0 1rem;">
-                        <p style="color: #999; font-size: 0.9rem; font-style: italic;">Selecciona un mapa para ver la leyenda.</p>
-                    </div>
-                </div>
-                <div class="mobile-drawer-section">
-                    <h3 class="mobile-drawer-section-title">Información</h3>
-                    <div class="bottom-sheet-list">
-                        <div class="bottom-sheet-list-item" data-action="about">
-                            <div class="bottom-sheet-list-item-title">
-                                <i class="bi bi-info-circle"></i> Acerca de
-                            </div>
-                            <div class="bottom-sheet-list-item-subtitle">
-                                Información del sistema
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            <div class="mobile-drawer-footer">
-                <div class="drawer-logos">
-                    <img src="img/logo_sener.png" alt="SENER" class="drawer-logo">
-                    <img src="img/snien.png" alt="SNIEn" class="drawer-logo">
-                </div>
-            </div>
-            </div>
-        `;
-
-        document.body.appendChild(drawer);
-        this.sideDrawer = drawer;
-
-        // Evento para cerrar
-        drawer.querySelector('.mobile-drawer-close').addEventListener('click', () => {
-            this.closeSideDrawer();
-        });
-
-        // Eventos para las acciones
-        drawer.querySelectorAll('[data-action]').forEach(item => {
-            item.addEventListener('click', (e) => {
-                const action = e.currentTarget.dataset.action;
-                this.handleDrawerAction(action);
-            });
-        });
-    }
 
     createSearchModal() {
         const modal = document.createElement('div');
@@ -808,11 +734,9 @@ class MobileInterface {
 
     resetAnalysis() {
         this.isAnalysisActive = false;
-        // Opcional: Limpiar el contenido del tab de info o restaurar el original si se guardó
     }
 
     showAnalysisInBottomSheet(analysisData) {
-        this.isAnalysisActive = true;
         const infoTab = document.querySelector('.bottom-sheet-tab-content[data-content="info"]');
         if (!infoTab) return;
 
@@ -867,6 +791,30 @@ class MobileInterface {
         infoTab.innerHTML = html;
         this.expandBottomSheet();
         this.switchBottomSheetTab('info');
+    }
+
+    handleMenuAction(action) {
+        switch (action) {
+            case 'refresh':
+                const refreshBtn = document.getElementById('refresh-data');
+                if (refreshBtn) refreshBtn.click();
+                break;
+            case 'export-png':
+                this.exportMap();
+                break;
+            case 'export-word':
+                this.exportMap(); // Por ahora usa la misma función
+                break;
+            case 'edit-data':
+            case 'view-data':
+                const url = window.currentSheetUrl || (window.mapConfig && window.mapConfig.googleSheetUrl);
+                if (url) {
+                    window.open(url, '_blank');
+                } else {
+                    alert('No hay datos vinculados para este mapa.');
+                }
+                break;
+        }
     }
 
     removeMobileElements() {
