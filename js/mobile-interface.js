@@ -107,20 +107,62 @@ class MobileInterface {
     }
 
     createLayersButton() {
-        // Botón de capas en bottom-left (estilo Google Maps)
+        // Botón de capas que ahora abre un menú flotante
         const btn = document.createElement('button');
         btn.className = 'mobile-layers-btn';
         btn.innerHTML = `
             <i class="bi bi-layers"></i>
-            <span>Capas</span>
+            <span>Menú</span>
         `;
-        btn.setAttribute('aria-label', 'Capas del mapa');
+        btn.setAttribute('aria-label', 'Menú del mapa');
         document.body.appendChild(btn);
 
+        // Crear menú flotante
+        const menu = document.createElement('div');
+        menu.className = 'mobile-floating-menu';
+        menu.innerHTML = `
+            <button class="mobile-floating-menu-item" data-tab="controls">
+                <i class="bi bi-sliders"></i>
+                <span>Controles</span>
+            </button>
+            <button class="mobile-floating-menu-item" data-tab="layers">
+                <i class="bi bi-layers"></i>
+                <span>Capas</span>
+            </button>
+            <button class="mobile-floating-menu-item" data-tab="info">
+                <i class="bi bi-info-circle"></i>
+                <span>Información</span>
+            </button>
+            <button class="mobile-floating-menu-item" data-tab="about">
+                <i class="bi bi-book"></i>
+                <span>Acerca de</span>
+            </button>
+        `;
+        document.body.appendChild(menu);
+
+        // Toggle menú flotante
         btn.addEventListener('click', () => {
-            // Expandir bottom sheet y cambiar al tab de capas
-            this.expandBottomSheet();
-            this.switchBottomSheetTab('layers');
+            const isMenuActive = menu.classList.contains('active');
+            if (isMenuActive) {
+                menu.classList.remove('active');
+            } else {
+                menu.classList.add('active');
+            }
+        });
+
+        // Manejar selección de opciones del menú
+        menu.querySelectorAll('.mobile-floating-menu-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const tabName = item.getAttribute('data-tab');
+
+                // Ocultar menú
+                menu.classList.remove('active');
+
+                // Expandir bottom sheet y cambiar al tab seleccionado
+                this.bottomSheet.classList.add('active');
+                this.expandBottomSheet();
+                this.switchBottomSheetTab(tabName);
+            });
         });
     }
 
@@ -464,6 +506,7 @@ class MobileInterface {
 
     collapseBottomSheet() {
         this.bottomSheet.classList.remove('expanded');
+        this.bottomSheet.classList.remove('active'); // Ocultar completamente
         this.bottomSheet.classList.add('collapsed');
         this.isBottomSheetExpanded = false;
     }
