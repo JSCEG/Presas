@@ -24,12 +24,12 @@
 .leaflet-popup.presa-popup-compact button:hover {
     background: linear-gradient(135deg, #45a049 0%, #2d6e2a 100%);
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
 }
 
 .leaflet-popup.presa-popup-compact button:active {
     transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Estilo del select de radio - Más dinámico */
@@ -71,7 +71,7 @@
 
 /* Ícono de agua en el título */
 .leaflet-popup.presa-popup-compact .bi-water {
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
 }
 
 /* Animación suave al abrir */
@@ -84,6 +84,7 @@
         opacity: 0;
         transform: translateY(-8px) scale(0.95);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -104,4 +105,43 @@
 /* Indicador visual en el botón cuando hay un radio seleccionado */
 .leaflet-popup.presa-popup-compact button:hover {
     transform: translateY(-1px) scale(1.02);
+}
+
+/* Estilo del botón de Analizar Recursos */
+.presa-popup-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #691C32;
+    /* GobMX Guinda */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.presa-popup-btn:hover {
+    background: #4B1424 !important;
+    /* Forzar sobre el estilo genérico */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.presa-popup-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.presa-popup-btn i {
+    font-size: 13px;
 }

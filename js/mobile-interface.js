@@ -45,6 +45,9 @@ class MobileInterface {
         // Crear bottom sheet
         this.createBottomSheet();
 
+        // Configurar manejadores de zoom
+        this.setupZoomHandlers();
+
 
 
 
@@ -799,6 +802,33 @@ class MobileInterface {
                 }
                 break;
         }
+    }
+
+    setupZoomHandlers() {
+        const checkMap = setInterval(() => {
+            if (window.map) {
+                clearInterval(checkMap);
+
+                // Función para actualizar clases de zoom
+                const updateZoomClasses = () => {
+                    const zoom = window.map.getZoom();
+                    const mapContainer = window.map.getContainer();
+
+                    // Remover clases de zoom anteriores
+                    mapContainer.classList.forEach(cls => {
+                        if (cls.startsWith('zoom-level-')) {
+                            mapContainer.classList.remove(cls);
+                        }
+                    });
+
+                    // Agregar clase actual
+                    mapContainer.classList.add(`zoom-level-${Math.floor(zoom)}`);
+                };
+
+                window.map.on('zoomend', updateZoomClasses);
+                updateZoomClasses(); // Inicializar
+            }
+        }, 500);
     }
 
     removeMobileElements() {
